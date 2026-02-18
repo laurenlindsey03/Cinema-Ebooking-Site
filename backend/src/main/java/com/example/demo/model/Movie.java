@@ -1,10 +1,7 @@
 package com.example.demo.model;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +14,7 @@ public class Movie {
 
     private String title;
     
-    private Object category;
+    private String category;
 
     private List<String> cast;
 
@@ -41,8 +38,8 @@ public class Movie {
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
-    public Object getCategory() { return category; }
-    public void setCategory(Object category) { this.category = category; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
     public List<String> getCast() { return cast; }
     public void setCast(List<String> cast) { this.cast = cast; }
