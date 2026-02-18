@@ -8,4 +8,5 @@ import java.util.List;
 public interface MovieRepository extends MongoRepository<Movie, String> {
     List<Movie> findByStatus(String status);
     List<Movie> findByTitleContainingIgnoreCase(String title);
+    List<Movie> findByCategory(String category);
 }
