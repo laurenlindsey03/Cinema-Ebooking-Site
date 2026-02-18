@@ -35,4 +35,14 @@ public class MovieController {
     public List<Movie> searchMoviesByTitle(@RequestParam String title) {
         return repo.findByTitleContainingIgnoreCase(title);
     }
+
+    @GetMapping("/{id}")
+    public Movie getMovieById(@PathVariable String id) {
+        return repo.findById(id).orElse(null);
+    }
+
+    @GetMapping("/filter")
+    public List<Movie> filterByGenre(@RequestParam String genre) {
+        return repo.findByCategory(genre);
+    }   
 }
