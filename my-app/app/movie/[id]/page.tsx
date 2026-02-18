@@ -21,16 +21,21 @@ export default function MovieDetails() {
       <h1>{movie.title}</h1>
 
       <img
-        src={movie.posterUrl}
-        style={{ width: "300px", marginBottom: "20px" }}
-      />
+          src={movie.posterUrl}
+          alt={movie.title}
+          style={{
+            width: "300px",
+            height: "450px",
+            borderRadius: 8,
+            cursor: "pointer"
+          }}
+        />
 
       <p><strong>Rating:</strong> {movie.rating}</p>
       <p>{movie.description}</p>
 
       <h2>Showtimes</h2>
 
-      {/* Loop through showings */}
       {movie.showings.map((showing) => (
         <div key={showing.date} style={{ marginBottom: "10px" }}>
           

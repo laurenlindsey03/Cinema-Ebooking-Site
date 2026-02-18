@@ -14,10 +14,48 @@ export default function Booking() {
       <p>Movie: {movie}</p>
       <p>Showtime: {time}</p>
 
-      <div className="mt-6">
-        <p>Adult ($15): <input type="number" min="0" /></p>
-        <p>Child ($7): <input type="number" min="0" /></p>
-        <p>Senior ($10): <input type="number" min="0" /></p>
+      <div style={{ marginTop: 20 }}>
+        <p>
+          Adult ($15):{" "}
+          <input
+            type="number"
+            min="0"
+            style={{
+              color: "white",
+              backgroundColor: "#333",
+              border: "1px solid white",
+              padding: "4px"
+            }}
+          />
+        </p>
+
+        <p>
+          Child ($7):{" "}
+          <input
+            type="number"
+            min="0"
+            style={{
+              color: "white",
+              backgroundColor: "#333",
+              border: "1px solid white",
+              padding: "4px"
+            }}
+          />
+        </p>
+
+        <p>
+          Senior ($10):{" "}
+          <input
+            type="number"
+            min="0"
+            style={{
+              color: "white",
+              backgroundColor: "#333",
+              border: "1px solid white",
+              padding: "4px"
+            }}
+          />
+        </p>
       </div>
 
       <Seating />

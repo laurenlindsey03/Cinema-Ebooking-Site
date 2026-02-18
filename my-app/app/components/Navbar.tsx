@@ -9,13 +9,20 @@ export default function Navbar() {
         justifyContent: "space-between",
         alignItems: "center",
         padding: "16px 40px",
-        background: "black",
-        color: "white",
+        background: "black"
       }}
+    >
+      <Link
+        href="/"
+        style={{
+          color: "red",
+          fontSize: "20px",
+          fontWeight: "bold",
+          textDecoration: "none"
+        }}
       >
-      <div style={{color: "red"}}>
         Cinema E-Booking
-      </div>
+      </Link>
     </nav>
   );
 }
