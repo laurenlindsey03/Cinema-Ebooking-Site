@@ -1,4 +1,11 @@
-package com.example.demo.repository
+package com.example.demo.repository;
 
-// Repository class to define data access operations
-// Deliverable 2: will handle search and filtering
+import com.example.demo.model.Movie;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import java.util.List;
+
+public interface MovieRepository extends MongoRepository<Movie, String> {
+    List<Movie> findByStatus(String status);
+    List<Movie> findByTitleContainingIgnoreCase(String title);
+}
