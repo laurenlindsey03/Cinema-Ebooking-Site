@@ -29,7 +29,7 @@ public class Movie {
     private String status;
 
     private Map<String, Object> trailer;
-    private Map<String, Object> reviews;
+    private List<Map<String, Object>> reviews;
 
     private List<Map<String, Object>> showtimes;
 
@@ -65,8 +65,8 @@ public class Movie {
     public Map<String, Object> getTrailer() { return trailer; }
     public void setTrailer(Map<String, Object> trailer) { this.trailer = trailer; }
 
-    public Map<String, Object> getReviews() { return reviews; }
-    public void setReviews(Map<String, Object> reviews) { this.reviews = reviews; }
+    public List<Map<String, Object>> getReviews() { return reviews; }
+    public void setReviews(List<Map<String, Object>> reviews) { this.reviews = reviews; }
 
     public List<Map<String, Object>> getShowtimes() { return showtimes; }
     public void setShowtimes(List<Map<String, Object>> showtimes) { this.showtimes = showtimes; }
