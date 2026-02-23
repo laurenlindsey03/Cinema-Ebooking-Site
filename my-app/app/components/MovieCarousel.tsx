@@ -28,8 +28,8 @@ export default function MovieCarousel({ movies }: MovieCarouselProps) {
       }}
     >
       <Link href={`/movie/${movie.id}`}>
-        {/* <img
-          src={movie.poster}
+        <img
+          src={movie.trailer?.imageUrl}
           alt={movie.title}
           style={{
             width: "300px",
@@ -37,7 +37,7 @@ export default function MovieCarousel({ movies }: MovieCarouselProps) {
             borderRadius: 8,
             cursor: "pointer"
           }}
-        /> */}
+        />
       </Link>
 
       <div

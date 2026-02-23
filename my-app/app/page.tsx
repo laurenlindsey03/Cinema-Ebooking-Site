@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Movie } from "./types/Movie";
 import MovieCarousel from "./components/MovieCarousel";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = "http://localhost:8080/api/movies";
 
 export default function Home() {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -36,20 +36,25 @@ export default function Home() {
 
   if (date !== "") {
     results = results.filter(movie =>
-      movie.showtimes?.some(show => show.date === date)
+      movie.showtimes?.some(show =>
+        new Date(show.start).toISOString().split("T")[0] === date
+      )
     );
   }
 
   if (time !== "") {
     results = results.filter(movie =>
       movie.showtimes?.some(show =>
-        show.times.includes(time)
+        new Date(show.start).toLocaleTimeString([], {
+          hour: "numeric",
+          minute: "2-digit"
+        }) === time
       )
     );
   }
 
   const showingNow = results.filter(
-    movie => movie.status === "NOW_SHOWING"
+    movie => movie.status === "NOW_PLAYING"
   );
 
   const comingSoon = results.filter(
@@ -57,12 +62,26 @@ export default function Home() {
   );
 
   const genres = [...new Set(movies.map(m => m.category))];
-  const dates = [...new Set(
-    movies.flatMap(m => m.showtimes?.map(s => s.date))
-  )];
-  const times = [...new Set(
-    movies.flatMap(m => m.showtimes?.flatMap(s => s.times))
-  )];
+  const dates = [
+    ...new Set(
+      movies
+        .flatMap(m => m.showtimes ?? [])
+        .map(s => new Date(s.start).toISOString().split("T")[0])
+    )
+  ];
+
+  const times = [
+    ...new Set(
+      movies
+        .flatMap(m => m.showtimes ?? [])
+        .map(s =>
+          new Date(s.start).toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit"
+          })
+        )
+    )
+  ];
 
   return (
     <div style={{ padding: 20 }}>
@@ -98,10 +117,42 @@ export default function Home() {
         </p>
       )}
 
-      <h2>Currently Running</h2>
+      <h2
+        style={{
+          fontSize: "32px",
+          fontWeight: "900",
+          letterSpacing: "6px",
+          textAlign: "center",
+          color: "#e6c26b", 
+          textShadow: `
+            0 0 4px rgba(230, 194, 107, 0.6),
+            0 0 8px rgba(255, 174, 0, 0.4)
+          `,
+          marginTop: "60px",
+          marginBottom: "40px"
+        }}
+      >
+        Now Showing
+      </h2>
       <MovieCarousel movies={showingNow} />
 
-      <h2 style={{ marginTop: 40 }}>Coming Soon</h2>
+      <h2
+        style={{
+          fontSize: "32px",
+          fontWeight: "900",
+          letterSpacing: "6px",
+          textAlign: "center",
+          color: "#e6c26b", 
+          textShadow: `
+            0 0 4px rgba(230, 194, 107, 0.6),
+            0 0 8px rgba(255, 174, 0, 0.4)
+          `,
+          marginTop: "60px",
+          marginBottom: "40px"
+        }}
+      >
+        Coming Soon
+      </h2>
       <MovieCarousel movies={comingSoon} />
 
     </div>
