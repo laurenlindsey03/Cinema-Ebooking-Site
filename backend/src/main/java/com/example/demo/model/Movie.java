@@ -4,7 +4,7 @@ package com.example.demo.model;
 // import org.springframework.data.mongodb.core.mapping.Document;
 
 import jakarta.persistence.*;
-import org.hibernate.anotations.JdbcTypeCode;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class Movie {
 
     @ElementCollection
     @CollectionTable(name = "movie_cast", joinColumns = @JoinColumn(name = "movie_id"))
-    @Column(name = "actor_name")
+    @Column(name = "actor_name", nullable = false)
     private List<String> cast;
 
     private String director;
