@@ -1,14 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { movies } from "@/data/movies";
+import { useEffect, useState } from "react";
+import { Movie } from "./types/Movie";
 import MovieCarousel from "./components/MovieCarousel";
 
+const API_BASE = "http://localhost:8080";
+
 export default function Home() {
+  const [movies, setMovies] = useState<Movie[]>([]);
   const [search, setSearch] = useState("");
   const [genre, setGenre] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+
+   useEffect(() => {
+    fetch(API_BASE)
+      .then(res => res.json())
+      .then(data => setMovies(data))
+      .catch(err => console.error(err));
+  }, []);
 
   let results = movies;
 
@@ -20,38 +30,38 @@ export default function Home() {
 
   if (genre !== "") {
     results = results.filter(movie =>
-      movie.genre === genre
+      movie.category === genre
     );
   }
 
   if (date !== "") {
     results = results.filter(movie =>
-      movie.showings.some(show => show.date === date)
+      movie.showtimes?.some(show => show.date === date)
     );
   }
 
   if (time !== "") {
     results = results.filter(movie =>
-      movie.showings.some(show =>
+      movie.showtimes?.some(show =>
         show.times.includes(time)
       )
     );
   }
 
   const showingNow = results.filter(
-    movie => movie.status === "Showing Now"
+    movie => movie.status === "NOW_SHOWING"
   );
 
   const comingSoon = results.filter(
-    movie => movie.status === "Coming Soon"
+    movie => movie.status === "COMING_SOON"
   );
 
-  const genres = [...new Set(movies.map(m => m.genre))];
+  const genres = [...new Set(movies.map(m => m.category))];
   const dates = [...new Set(
-    movies.flatMap(m => m.showings.map(s => s.date))
+    movies.flatMap(m => m.showtimes?.map(s => s.date))
   )];
   const times = [...new Set(
-    movies.flatMap(m => m.showings.flatMap(s => s.times))
+    movies.flatMap(m => m.showtimes?.flatMap(s => s.times))
   )];
 
   return (

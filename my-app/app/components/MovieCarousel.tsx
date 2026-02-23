@@ -28,8 +28,8 @@ export default function MovieCarousel({ movies }: MovieCarouselProps) {
       }}
     >
       <Link href={`/movie/${movie.id}`}>
-        <img
-          src={movie.posterUrl}
+        {/* <img
+          src={movie.poster}
           alt={movie.title}
           style={{
             width: "300px",
@@ -37,7 +37,7 @@ export default function MovieCarousel({ movies }: MovieCarouselProps) {
             borderRadius: 8,
             cursor: "pointer"
           }}
-        />
+        /> */}
       </Link>
 
       <div
@@ -51,7 +51,7 @@ export default function MovieCarousel({ movies }: MovieCarouselProps) {
       </div>
 
       <div style={{ color: "#bbbbbb" }}>
-        {movie.genre}
+        {movie.category}
       </div>
 
       <div>

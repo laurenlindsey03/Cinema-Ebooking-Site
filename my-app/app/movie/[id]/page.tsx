@@ -1,15 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { movies } from "@/data/movies";
+import { Movie } from "../../types/Movie";
 import Link from "next/link";
 
 export default function MovieDetails() {
   const { id } = useParams();
 
-  const movie = movies.find(
-    (m) => m.id === Number(id)
-  );
+  const [movie, setMovie] = useState<Movie | null>(null);
 
   if (!movie) {
     return <p>Movie not found</p>;
@@ -20,7 +19,7 @@ export default function MovieDetails() {
       
       <h1>{movie.title}</h1>
 
-      <img
+      {/* <img
           src={movie.posterUrl}
           alt={movie.title}
           style={{
@@ -29,21 +28,21 @@ export default function MovieDetails() {
             borderRadius: 8,
             cursor: "pointer"
           }}
-        />
+        /> */}
 
-      <p><strong>Rating:</strong> {movie.rating}</p>
-      <p>{movie.description}</p>
+      <p><strong>Rating:</strong> {movie.mpaaRating}</p>
+      <p>{movie.synopsis}</p>
 
       <h2>Showtimes</h2>
 
-      {movie.showings.map((showing) => (
+      {movie.showtimes?.map((showing) => (
         <div key={showing.date} style={{ marginBottom: "10px" }}>
           
           <div style={{ fontWeight: 600 }}>
             {showing.date}
           </div>
 
-          {showing.times.map((time) => (
+          {showing.times?.map((time: string) => (
             <Link
               key={time}
               href={`/booking?movie=${movie.title}&time=${time}`}
@@ -72,7 +71,7 @@ export default function MovieDetails() {
       <iframe
         width="560"
         height="315"
-        src={movie.trailerUrl}
+        src={movie.trailer}
         allowFullScreen
       />
 

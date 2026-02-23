@@ -1,14 +1,14 @@
 export type Movie = {
-  id: number;
+  id: string;
   title: string;
-  genre: string;
-  status: "Showing Now" | "Coming Soon";
-  rating: string;
-  description: string;
-  posterUrl: string;
-  trailerUrl: string;
-  showings: {
-    date: string;
-    times: string[];
-  }[];
+  category: any;
+  cast: string[];
+  director: any;
+  producer: any;
+  synopsis: string;
+  mpaaRating: string;
+  status: string;
+  trailer: any;
+  reviews: any[];
+  showtimes: any[];
 };
