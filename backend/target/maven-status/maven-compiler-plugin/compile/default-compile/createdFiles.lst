@@ -1,0 +1,5 @@
+com\example\demo\controller\MovieController.class
+com\example\demo\CinemaEbookingSiteApplication.class
+com\example\demo\model\Movie.class
+com\example\demo\config\WebConfig.class
+com\example\demo\repository\MovieRepository.class
