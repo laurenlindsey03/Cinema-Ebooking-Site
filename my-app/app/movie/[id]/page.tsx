@@ -34,6 +34,19 @@ export default function MovieDetails() {
     return <p>Movie not found</p>;
   }
 
+  const posterMap: { [key: string]: string } = {
+    "Crime 101": "/images/Crime101.jpeg",
+    "GOAT": "/images/Goat.jpg",
+    "I Can Only Imagine 2": "/images/ICanOnlyImagine2.jpg",
+    "Peaky Blinders: The Immortal Man": "/images/PeakyBlinders.jpeg",
+    "Project Hail Mary": "/images/ProjectHailMary.jpeg",
+    "Reminders of Him": "/images/RemindersOfHim.jpeg",
+    "Send Help": "/images/SendHelp.jpeg",
+    "Solo Mio": "/images/SoloMia.jpg",
+    "The Bride!": "/images/TheBride!.jpeg",
+    "Wuthering Heights": "/images/WutheringHeights.jpeg",
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       
@@ -45,8 +58,8 @@ export default function MovieDetails() {
       </h1>
 
 
-      {/* <img
-          src={movie.posterUrl}
+      <img
+          src={posterMap[movie.title] || "/images/WutheringHeights.jpg"}
           alt={movie.title}
           style={{
             width: "300px",
@@ -54,7 +67,7 @@ export default function MovieDetails() {
             borderRadius: 8,
             cursor: "pointer"
           }}
-      /> */}
+        />
 
       <div style={{ marginBottom: "20px", color: "#bbbbbb" }}>
       {movie.mpaaRating} • {movie.categories?.join(", ")}
