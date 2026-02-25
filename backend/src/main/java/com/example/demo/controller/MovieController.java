@@ -37,7 +37,7 @@ public class MovieController {
     }
 
     @GetMapping("/{id}")
-    public Movie getMovieById(@PathVariable String id) {
+    public Movie getMovieById(@PathVariable Long id) {
         return repo.findById(id).orElse(null);
     }
 
