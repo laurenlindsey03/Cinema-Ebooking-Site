@@ -4,20 +4,25 @@ import { useEffect, useState } from "react";
 import { Movie } from "./types/Movie";
 import MovieCarousel from "./components/MovieCarousel";
 
-const API_BASE = "http://localhost:8080/api/movies";
+const MOVIE_API = "http://localhost:8080/api/movies";
+const SHOWTIME_API = "http://localhost:8080/api/showtimes";
 
 export default function Home() {
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [showtimes, setShowtimes] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [genre, setGenre] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
 
    useEffect(() => {
-    fetch(API_BASE)
+    fetch(MOVIE_API)
       .then(res => res.json())
       .then(data => setMovies(data))
-      .catch(err => console.error(err));
+
+    fetch(SHOWTIME_API)
+      .then(res => res.json())
+      .then(data => setShowtimes(data));
   }, []);
 
   let results = movies;
@@ -30,28 +35,31 @@ export default function Home() {
 
   if (genre !== "") {
     results = results.filter(movie =>
-      movie.category === genre
+      movie.categories?.includes(genre)
     );
   }
 
   if (date !== "") {
     results = results.filter(movie =>
-      movie.showtimes?.some(show =>
-        new Date(show.start).toISOString().split("T")[0] === date
+      showtimes.some(st =>
+        st.movie?.id === movie.id &&
+        new Date(st.startTime).toISOString().split("T")[0] === date
       )
     );
   }
 
   if (time !== "") {
     results = results.filter(movie =>
-      movie.showtimes?.some(show =>
-        new Date(show.start).toLocaleTimeString([], {
+      showtimes.some(st =>
+        st.movie?.id === movie.id &&
+        new Date(st.startTime).toLocaleTimeString([], {
           hour: "numeric",
           minute: "2-digit"
         }) === time
       )
     );
   }
+
 
   const showingNow = results.filter(
     movie => movie.status === "NOW_PLAYING"
@@ -61,25 +69,28 @@ export default function Home() {
     movie => movie.status === "COMING_SOON"
   );
 
-  const genres = [...new Set(movies.map(m => m.category))];
   const dates = [
     ...new Set(
-      movies
-        .flatMap(m => m.showtimes ?? [])
-        .map(s => new Date(s.start).toISOString().split("T")[0])
+      showtimes.map(st =>
+        new Date(st.startTime).toISOString().split("T")[0]
+      )
     )
   ];
 
   const times = [
     ...new Set(
-      movies
-        .flatMap(m => m.showtimes ?? [])
-        .map(s =>
-          new Date(s.start).toLocaleTimeString([], {
-            hour: "numeric",
-            minute: "2-digit"
-          })
-        )
+      showtimes.map(st =>
+        new Date(st.startTime).toLocaleTimeString([], {
+          hour: "numeric",
+          minute: "2-digit"
+        })
+      )
+    )
+  ];
+
+  const genres = [
+    ...new Set(
+      movies.flatMap(m => m.categories ?? [])
     )
   ];
 

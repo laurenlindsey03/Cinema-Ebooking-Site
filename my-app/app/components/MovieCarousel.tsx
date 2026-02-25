@@ -17,6 +17,19 @@ export default function MovieCarousel({ movies }: MovieCarouselProps) {
 
   const movie = movies[current];
 
+  const posterMap: { [key: string]: string } = {
+    "Crime 101": "/images/Crime101.jpeg",
+    "GOAT": "/images/Goat.jpg",
+    "I Can Only Imagine 2": "/images/ICanOnlyImagine2.jpg",
+    "Peaky Blinders: The Immortal Man": "/images/PeakyBlinders.jpeg",
+    "Project Hail Mary": "/images/ProjectHailMary.jpeg",
+    "Reminders of Him": "/images/RemindersOfHim.jpeg",
+    "Send Help": "/images/SendHelp.jpeg",
+    "Solo Mio": "/images/SoloMia.jpg",
+    "The Bride!": "/images/TheBride!.jpeg",
+    "Wuthering Heights": "/images/WutheringHeights.jpeg",
+  };
+
   return (
     <div
       style={{
@@ -29,7 +42,7 @@ export default function MovieCarousel({ movies }: MovieCarouselProps) {
     >
       <Link href={`/movie/${movie.id}`}>
         <img
-          src={movie.trailer?.imageUrl}
+          src={posterMap[movie.title] || "/images/WutheringHeights.jpg"}
           alt={movie.title}
           style={{
             width: "300px",
@@ -51,7 +64,7 @@ export default function MovieCarousel({ movies }: MovieCarouselProps) {
       </div>
 
       <div style={{ color: "#bbbbbb" }}>
-        {movie.category}
+        {movie.categories?.join(", ")}
       </div>
 
       <div>

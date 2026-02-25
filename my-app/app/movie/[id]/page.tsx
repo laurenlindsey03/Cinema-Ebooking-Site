@@ -6,22 +6,28 @@ import { Movie } from "../../types/Movie";
 import Link from "next/link";
 
 export default function MovieDetails() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const [movie, setMovie] = useState<Movie | null>(null);
+  const [showtimes, setShowtimes] = useState<any[]>([]);
 
-  const API_BASE = "http://localhost:8080/api/movies";
+  const MOVIE_API = "http://localhost:8080/api/movies";
+  const SHOWTIME_API = "http://localhost:8080/api/showtimes";
 
   useEffect(() => {
     if (!id) return;
 
-    fetch(`${API_BASE}`)
+    fetch(`${MOVIE_API}/${id}`)
       .then(res => res.json())
-      .then(data => {
-        const found = data.find((m: Movie) => m.id === id);
-        setMovie(found || null);
-      })
+      .then(data => setMovie(data))
       .catch(err => console.error(err));
+
+    fetch(`${SHOWTIME_API}/movie/${id}`)
+      .then(res => res.json())
+      .then(data => setShowtimes(data))
+      .catch(err => console.error(err));
+
   }, [id]);
 
   if (!movie) {
@@ -51,7 +57,7 @@ export default function MovieDetails() {
       /> */}
 
       <div style={{ marginBottom: "20px", color: "#bbbbbb" }}>
-      {movie.mpaaRating} • {movie.category}
+      {movie.mpaaRating} • {movie.categories?.join(", ")}
       </div>
 
       <p style={{ lineHeight: "1.6", marginBottom: "30px" }}>
@@ -69,18 +75,17 @@ export default function MovieDetails() {
         Showtimes
       </h2>
 
-      {movie.showtimes?.map((showing, index) => {
-        const dateObj = new Date(showing.start);
+      {showtimes.map((show) => {
+        const dateObj = new Date(show.startTime);
 
-        const formattedDate = dateObj.toISOString().split("T")[0];
-
+        const formattedDate = dateObj.toLocaleDateString();
         const formattedTime = dateObj.toLocaleTimeString([], {
           hour: "numeric",
           minute: "2-digit"
         });
 
         return (
-          <div key={index} style={{ marginBottom: "10px" }}>
+          <div key={show.id} style={{ marginBottom: "10px" }}>
             <div style={{ fontWeight: 600 }}>
               {formattedDate}
             </div>
@@ -111,7 +116,7 @@ export default function MovieDetails() {
       <iframe
         width="560"
         height="315"
-        src={movie.trailer?.videoUrl.replace("watch?v=", "embed/")}
+        src={movie.trailerUrl.replace("watch?v=", "embed/")}
         allowFullScreen
       />
 

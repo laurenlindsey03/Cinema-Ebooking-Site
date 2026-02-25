@@ -1,14 +1,10 @@
 export type Movie = {
-  id: string;
+  id: number;
   title: string;
-  category: any;
-  cast: string[];
-  director: any;
-  producer: any;
+  categories: string[];
   synopsis: string;
   mpaaRating: string;
   status: string;
-  trailer: any;
-  reviews: any[];
-  showtimes: any[];
+  posterUrl: string;
+  trailerUrl: string;
 };
