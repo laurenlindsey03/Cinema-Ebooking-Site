@@ -14,4 +14,9 @@ Software Engineering term project
 - HTML
 - CSS
 
-
+**Instructions to Run:**
+cd backend
+./mvnw spring-boot:run
+** open new terminal window **
+cd my-app 
+npm run dev // must have run npm install first
