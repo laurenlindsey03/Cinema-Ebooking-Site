@@ -16,6 +16,9 @@ export default function MovieCarousel({ movies }: MovieCarouselProps) {
   }
 
   const movie = movies[current];
+  if (!movie) {
+    return <div>No movies available</div>;
+  }
 
   const posterMap: { [key: string]: string } = {
     "Crime 101": "/images/Crime101.jpeg",
