@@ -15,8 +15,8 @@ public class User {
     private String phoneNumber;
     private String password; 
     
-    private String userStatus; 
-    private String role;   
+    private String userStatus;  //ENUM?
+    private String role;    // ENUM?
 
     public User() {
     }
