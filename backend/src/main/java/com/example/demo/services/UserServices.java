@@ -20,14 +20,36 @@ public class UserServices {
 
     public User register(User newUser) {
 
-        // check that user does not already exist???
+        // check that user does not already exist in DB??
 
-        newUser.setPassword(newUser.getPassword());
+        newUser.setPassword(newUser.getPassword()); //encrypt?
         newUser.setUserStatus("INACTIVE");
         newUser.setRole("USER");
         // send confirmation email
 
-        
+        // save to DB
+        User registeredUser = userRepository.save(newUser);
+        return registeredUser;
     }
-    
+
+    public User login() {
+
+    }
+
+    public User editProfile() {
+
+    }
+
+    public void changePassword() {
+
+    }
+
+    public User addCard() {
+
+    }
+
+    public User addToFavorites() {
+
+    }
+
 }
