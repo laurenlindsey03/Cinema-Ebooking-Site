@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.model.Card;
 import com.example.demo.model.User;
+import com.example.demo.model.UserRole;
+import com.example.demo.model.UserStatus;
 import com.example.demo.repository.MovieRepository;
 import com.example.demo.repository.UserRepository;
 
@@ -23,8 +25,8 @@ public class UserServices {
         // check that user does not already exist in DB??
 
         newUser.setPassword(newUser.getPassword()); //encrypt?
-        newUser.setUserStatus("INACTIVE");
-        newUser.setRole("USER");
+        newUser.setUserStatus(UserStatus.INACTIVE);
+        newUser.setRole(UserRole.USER);
         // send confirmation email
 
         // save to DB

@@ -15,8 +15,11 @@ public class User {
     private String phoneNumber;
     private String password; 
     
-    private String userStatus;  //ENUM?
-    private String role;    // ENUM?
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;  
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     public User() {
     }
@@ -69,19 +72,19 @@ public class User {
         this.password = password; 
     }
 
-    public String getUserStatus() { 
-        return userStatus; 
+    public UserStatus getUserStatus() { 
+        return status; 
     }
 
-    public void setUserStatus(String userStatus) { 
-        this.userStatus = userStatus; 
+    public void setUserStatus(UserStatus status) { 
+        this.status = status; 
     }
 
-    public String getRole() { 
+    public UserRole getRole() { 
         return role; 
     }
 
-    public void setRole(String role) { 
+    public void setRole(UserRole role) { 
         this.role = role; 
     }
 
