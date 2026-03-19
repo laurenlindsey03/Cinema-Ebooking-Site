@@ -8,6 +8,7 @@ import com.example.demo.model.UserStatus;
 import com.example.demo.repository.MovieRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import java.util.Optional; // if DNE
 
 import java.util.UUID;
 
@@ -55,6 +56,22 @@ public class UserServices {
         mailSender.send(email);
 
         return registeredUser;
+    }
+
+    public boolean verifiedAccount(String confirmationNum) {
+        Optional<User> newUser = userRepository.findConfirmationNum(confirmationNum);
+        
+        if (newUser.isPresent()) {
+            User user = newUser.get();
+
+            user.setUserStatus(UserStatus.ACTIVE);
+
+            userRepository.save(user);
+
+            return true;
+        }
+
+        return false;
     }
 
     public User login() {
