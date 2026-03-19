@@ -11,8 +11,7 @@ public class Card {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String cardNumber; 
-    private String encryptedCardNumber; 
+    private String cardNumber; // only storing hashed cardNumber
     private String expirationDate;
     private String billingAddress;
     private String CVV;
@@ -34,14 +33,6 @@ public class Card {
 
     public void setCardNumber(String cardNumber) { 
         this.cardNumber = cardNumber; 
-    }
-
-    public String getEncryptedCardNumber() { 
-        return encryptedCardNumber; 
-    }
-
-    public void setEncryptedCardNumber(String encryptedCardNumber) { 
-        this.encryptedCardNumber = encryptedCardNumber; 
     }
 
     public String getExpirationDate() { 
