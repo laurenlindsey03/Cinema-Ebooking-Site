@@ -6,6 +6,7 @@ import java.util.Optional; // if DNE
 
 // PLACEHOLDER
 public interface UserRepository extends JpaRepository<User, Long>{
+    Optional<User> findId(Long id);
     Optional<User> findEmail(String email);
     Optional<User> findConfirmationNum(String confirmationNum);
 }

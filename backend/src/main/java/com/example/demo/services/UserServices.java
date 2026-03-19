@@ -82,7 +82,14 @@ public class UserServices {
 
     }
 
-    public void changePassword() {
+    public void changePassword(Long id, String newPassword) {
+
+        // find in DB
+        User user = userRepository.findId(id).orElseThrow();
+
+        // update password
+        user.setPassword(hashEncoder.encode(newPassword)); 
+        userRepository.save(user);
 
     }
 
