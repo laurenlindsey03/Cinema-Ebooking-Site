@@ -21,6 +21,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    private String confirmationNum;
+
     public User() {
     }
     
@@ -86,6 +88,14 @@ public class User {
 
     public void setRole(UserRole role) { 
         this.role = role; 
+    }
+
+    public String getConfirmationNum() { 
+        return confirmationNum; 
+    }
+
+    public void setConfirmationNum(String confirmationNum) { 
+        this.confirmationNum = confirmationNum; 
     }
 
     
