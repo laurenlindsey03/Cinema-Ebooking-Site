@@ -38,7 +38,7 @@ public class UserServices {
 
         newUser.setPassword(hashEncoder.encode(newUser.getPassword())); 
         newUser.setUserStatus(UserStatus.INACTIVE);
-        newUser.setRole(UserRole.USER);
+        newUser.setRole(UserRole.CUSTOMER);
         newUser.setConfirmationNum(UUID.randomUUID().toString());
 
         // save to DB
