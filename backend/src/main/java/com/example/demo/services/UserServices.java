@@ -82,10 +82,16 @@ public class UserServices {
 
     }
 
-    public void changePassword(Long id, String newPassword) {
+    public void changePassword(Long id, String newPassword, String oldPassword) {
 
         // find in DB
         User user = userRepository.findId(id).orElseThrow();
+
+        // provide old password before setting new one
+        boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPassword());
+        if (!passwordMatches) {
+            throw new RuntimeException(); // message??
+        }
 
         // update password
         user.setPassword(hashEncoder.encode(newPassword)); 
