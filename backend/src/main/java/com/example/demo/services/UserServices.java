@@ -24,9 +24,10 @@ public class UserServices {
     private final JavaMailSender mailSender;
     private final MovieRepository movieRepository;
 
-    public UserServices(UserRepository userRepository, JavaMailSender mailSender) {
+    public UserServices(UserRepository userRepository, JavaMailSender mailSender, MovieRepository movieRepository) {
         this.userRepository = userRepository;
         this.mailSender = mailSender;
+        this.movieRepository = movieRepository;
     }
 
     public User register(User newUser) {
