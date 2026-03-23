@@ -22,6 +22,7 @@ public class UserServices {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder hashEncoder = new BCryptPasswordEncoder();
     private final JavaMailSender mailSender;
+    private final MovieRepository movieRepository;
 
     public UserServices(UserRepository userRepository, JavaMailSender mailSender) {
         this.userRepository = userRepository;
@@ -177,7 +178,12 @@ public class UserServices {
 
     }
 
-    public User addToFavorites() {
+    public void addToFavorites(Long id, Long movieId) {
+
+        User user = userRepository.findById(id).orElseThrow();
+        Movie movie = movieRepository.findById(movieId).orElseThrow();
+        user.getFavorites().add(movie);
+        userRepository.save(user);
 
     }
 

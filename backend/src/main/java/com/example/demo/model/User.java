@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import java.util.ArrayList;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -22,6 +24,8 @@ public class User {
     private UserRole role;
 
     private String confirmationNum;
+
+    private ArrayList<Movie> favorites = new ArrayList<>();
 
     public User() {
     }
@@ -96,6 +100,14 @@ public class User {
 
     public void setConfirmationNum(String confirmationNum) { 
         this.confirmationNum = confirmationNum; 
+    }
+
+    public ArrayList<Movie> getFavorites() { 
+        return favorites; 
+    }
+
+    public void setFavorites(ArrayList<Movie> favorites) { 
+        this.favorites = favorites; 
     }
 
     
