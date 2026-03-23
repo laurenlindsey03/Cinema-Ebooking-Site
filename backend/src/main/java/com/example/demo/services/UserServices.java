@@ -106,6 +106,31 @@ public class UserServices {
         return user;
     } //login
 
+    public void requestPasswordReset(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new RuntimeException("Email is required.");
+        }
+
+        Optional<User> userOptional = userRepository.findEmail(email);
+        if (!userOptional.isPresent()) {
+            throw new RuntimeException("No account found for that email.");
+        }
+
+        User user = userOptional.get();
+
+        // Reuse confirmationNum as a one-time reset token.
+        String resetToken = UUID.randomUUID().toString();
+        user.setConfirmationNum(resetToken);
+        userRepository.save(user);
+
+        SimpleMailMessage emailMessage = new SimpleMailMessage();
+        emailMessage.setTo(user.getEmail());
+        emailMessage.setSubject("CES Password Reset");
+        emailMessage.setText("Use this reset token to update your password: " + resetToken);
+        mailSender.send(emailMessage);
+    }
+
+
     public User editProfile() {
 
     }
