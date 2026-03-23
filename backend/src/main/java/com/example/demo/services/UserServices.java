@@ -74,9 +74,37 @@ public class UserServices {
         return false;
     }
 
-    public User login() {
+    public User login(String email, String password) {
+        //check for email and password inputs
+        if (email == null || email.trim().isEmpty()) {
+            throw new RuntimeException("Email is required.");
+        }
+        if (password == null || password.trim().isEmpty()) {
+            throw new RuntimeException("Password is required.");
+        }
 
-    }
+        //check if user is in database
+        Optional<User> userOptional = userRepository.findEmail(email);
+        if (!userOptional.isPresent()) {
+            throw new RuntimeException("Invalid email.");
+        }
+
+        User user = userOptional.get();
+
+        //check if account is active
+        if (user.getUserStatus() != UserStatus.ACTIVE) {
+            throw new RuntimeException("Please verify your email and log in again.");
+        }
+
+        // Validate password
+        boolean passwordMatches = hashEncoder.matches(password, user.getPassword());
+        if (!passwordMatches) {
+            throw new RuntimeException("Invalid password.");
+        }
+
+        // Successful login
+        return user;
+    } //login
 
     public User editProfile() {
 
