@@ -128,8 +128,29 @@ public class UserServices {
         emailMessage.setSubject("CES Password Reset");
         emailMessage.setText("Use this reset token to update your password: " + resetToken);
         mailSender.send(emailMessage);
-    }
+    } //requestPasswordReset
 
+    public User resetForgottenPassword(String resetToken, String newPassword) {
+        if (resetToken == null || resetToken.trim().isEmpty()) {
+            throw new RuntimeException("Reset token is required.");
+        }
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            throw new RuntimeException("New password is required.");
+        }
+
+        Optional<User> userOptional = userRepository.findConfirmationNum(resetToken);
+        if (!userOptional.isPresent()) {
+            throw new RuntimeException("Invalid reset token.");
+        }
+
+        User user = userOptional.get();
+        user.setPassword(hashEncoder.encode(newPassword));
+
+        // Rotate token so the same reset token cannot be reused.
+        user.setConfirmationNum(UUID.randomUUID().toString());
+
+        return userRepository.save(user);
+    } //resetForgottenPassword
 
     public User editProfile() {
 
