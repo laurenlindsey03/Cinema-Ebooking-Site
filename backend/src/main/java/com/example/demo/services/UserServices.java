@@ -35,7 +35,7 @@ public class UserServices {
         // check that user does not already exist in DB
         boolean userExists = userRepository.findEmail(newUser.getEmail()).isPresent();
         if (userExists) {
-            throw new RuntimeException(); //message needed?
+            throw new RuntimeException("User is already registered, cannot create a new account.");
         }
 
         newUser.setPassword(hashEncoder.encode(newUser.getPassword())); 
@@ -166,7 +166,7 @@ public class UserServices {
         // provide old password before setting new one
         boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPassword());
         if (!passwordMatches) {
-            throw new RuntimeException(); // message??
+            throw new RuntimeException("New password must be different than old password.");
         }
 
         // update password
@@ -187,5 +187,21 @@ public class UserServices {
         userRepository.save(user);
 
     }
+
+    public void removeFromFavorites(Long id, Long movieId) {
+
+        User user = userRepository.findById(id).orElseThrow();
+        Movie movie = movieRepository.findById(movieId).orElseThrow();
+
+        if (user.getFavorites().contains(movie)) {
+            user.getFavorites().remove(movie);
+            userRepository.save(user);
+        } else {
+            throw new RuntimeException("Movie not found in favorites list.");
+        }
+
+    }
+
+
 
 }
