@@ -161,7 +161,7 @@ public class UserServices {
     public void changePassword(Long id, String newPassword, String oldPassword) {
 
         // find in DB
-        User user = userRepository.findId(id).orElseThrow();
+        User user = userRepository.findById(id).orElseThrow();
 
         // provide old password before setting new one
         boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPassword());
