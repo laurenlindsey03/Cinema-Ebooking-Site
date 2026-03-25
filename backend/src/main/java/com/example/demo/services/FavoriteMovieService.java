@@ -21,7 +21,7 @@ public class FavoriteMovieService {
     }
 
     public FavoriteMovie addFavorite(Integer userId, Long movieId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("You must be logged in to add to favorites."));
 
         FavoriteMovieId id = new FavoriteMovieId(userId, movieId);
 
