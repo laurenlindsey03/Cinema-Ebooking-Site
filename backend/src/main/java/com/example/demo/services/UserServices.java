@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.model.Movie;
 import com.example.demo.model.Card;
+import com.example.demo.encrypt.Encryption;
 import com.example.demo.model.Address;
 import com.example.demo.model.User;
 import com.example.demo.model.UserRole;
@@ -239,6 +240,13 @@ public class UserServices {
             throw new RuntimeException("User can only have a maximum of 3 saved cards.");
         }
 
+        try {
+            String encryptedNum = Encryption.encrypt(card.getCardNumber());
+            card.setCardNumber(encryptedNum);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not encrypt card info.");
+        }
+
         // Add the card to user's cards
         user.getCards().add(card);
 
@@ -247,6 +255,8 @@ public class UserServices {
         emailMessage.setSubject("CES Payment Method Added");
         emailMessage.setText("A new payment method has been added to your account.");
         mailSender.send(emailMessage);
+
+        userRepository.save(user);
     }
 
     public void removeCard(Long userId, Long cardId) {
