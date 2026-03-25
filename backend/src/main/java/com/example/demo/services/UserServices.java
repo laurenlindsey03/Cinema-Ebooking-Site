@@ -99,4 +99,32 @@ public class UserServices {
         return user;
     } //login
 
+
+    public void changePassword(Integer id, String newPassword, String oldPassword) {
+
+        // find in DB
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!hashEncoder.matches(oldPassword, user.getPasswordHash())) {
+            throw new RuntimeException("Current password is incorrect.");
+        }
+
+        // provide old password before setting new one
+        boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPasswordHash());
+        if (!passwordMatches) {
+            throw new RuntimeException("New password must be different than old password.");
+        }
+
+        // update password
+        user.setPasswordHash(hashEncoder.encode(newPassword)); 
+        userRepository.save(user);
+
+        SimpleMailMessage emailMessage = new SimpleMailMessage();
+        emailMessage.setTo(user.getEmail());
+        emailMessage.setSubject("CES Password Change");
+        emailMessage.setText("Your password has been changed.");
+        mailSender.send(emailMessage);
+
+    }
+
 }
