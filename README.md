@@ -9,9 +9,14 @@ Software Engineering term project
 
 **Development Stack:**
 - Java with Spring Boot
-- MongoDB
+- MySQL
 - Reach
 - HTML
 - CSS
 
-
+**Instructions to Run:**
+cd backend
+./mvnw spring-boot:run
+** open new terminal window **
+cd my-app 
+npm run dev // must have run npm install first
