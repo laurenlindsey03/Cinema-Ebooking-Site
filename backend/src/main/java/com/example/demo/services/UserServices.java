@@ -193,6 +193,24 @@ public class UserServices {
         return userRepository.save(user);
     }
 
+    public User removeCard(Long userId, Long cardId) {
+        // Get user from database
+        User user = userRepository.findById(userId).orElseThrow(
+            () -> new RuntimeException("User not found.")
+        );
+
+        // Find and remove the card
+        Card cardToRemove = user.getCards().stream()
+            .filter(card -> card.getId().equals(cardId))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Card not found in user's cards."));
+
+        user.getCards().remove(cardToRemove);
+
+        // Save and return updated user
+        return userRepository.save(user);
+    }
+
     public void addToFavorites(Long id, Long movieId) {
 
         User user = userRepository.findById(id).orElseThrow();
