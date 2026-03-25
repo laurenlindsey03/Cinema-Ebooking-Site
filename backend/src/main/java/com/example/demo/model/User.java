@@ -95,7 +95,7 @@ public class User {
         this.passwordHash = passwordHash; 
     }
 
-    public UserStatus getStatus() { 
+    public UserStatus getUserStatus() { 
         return status; 
     }
 

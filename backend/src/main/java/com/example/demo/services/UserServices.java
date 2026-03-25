@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
-import com.example.demo.model.PasswordReset;
+import com.example.demo.model.Movie;
+import com.example.demo.model.Card;
 import com.example.demo.model.User;
 import com.example.demo.model.UserRole;
 import com.example.demo.model.UserStatus;
@@ -119,13 +120,11 @@ public class UserServices {
 
         PasswordReset savedReset = passwordResetRepository.save(reset);
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(user.getEmail());
-        message.setSubject("CES Password Reset Request");
-        message.setText("Use this reset token to update your password: " + savedReset.getToken());
-        mailSender.send(message);
-
-        return savedReset;
+        SimpleMailMessage emailMessage = new SimpleMailMessage();
+        emailMessage.setTo(user.getEmail());
+        emailMessage.setSubject("CES Password Reset");
+        emailMessage.setText("Use this reset token to update your password: " + resetToken);
+        mailSender.send(emailMessage);
     } //requestPasswordReset
 
     public User resetForgottenPassword(String resetToken, String newPassword) {
@@ -146,16 +145,20 @@ public class UserServices {
             throw new RuntimeException("Reset token expired.");
         }
 
-        User user = reset.getUser();
-        user.setPasswordHash(hashEncoder.encode(newPassword));
-        userRepository.save(user);
+        User user = userOptional.get();
+        user.setPassword(hashEncoder.encode(newPassword));
 
-        reset.setUsed(true);
-        passwordResetRepository.save(reset);
-        return user;
+        // Rotate token so the same reset token cannot be reused.
+        user.setConfirmationNum(UUID.randomUUID().toString());
+
+        return userRepository.save(user);
     } //resetForgottenPassword
 
-    public void changePassword(Integer userId, String newPassword, String oldPassword) {
+    public User editProfile() {
+
+    }
+
+    public void changePassword(Long id, String newPassword, String oldPassword) {
 
         // find in DB
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
@@ -165,7 +168,7 @@ public class UserServices {
         }
 
         // provide old password before setting new one
-        boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPasswordHash());
+        boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPassword());
         if (!passwordMatches) {
             throw new RuntimeException("New password must be different than old password.");
         }
@@ -174,24 +177,41 @@ public class UserServices {
         user.setPasswordHash(hashEncoder.encode(newPassword)); 
         userRepository.save(user);
 
+        SimpleMailMessage emailMessage = new SimpleMailMessage();
+        emailMessage.setTo(user.getEmail());
+        emailMessage.setSubject("CES Password Change");
+        emailMessage.setText("Your password has been changed.");
+        mailSender.send(emailMessage);
+
     }
 
-    public User updateProfile(Integer userId, User incomingUser) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+    public User addCard() {
 
-        user.setFirstName(incomingUser.getFirstName());
-        user.setLastName(incomingUser.getLastName());
-        user.setPhoneNumber(incomingUser.getPhoneNumber());
-
-        User savedUser = userRepository.save(user);
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(savedUser.getEmail());
-        message.setSubject("Profile Updated");
-        message.setText("Your profile information was changed.");
-
-        mailSender.send(message);
-
-        return savedUser;
     }
+
+    public void addToFavorites(Long id, Long movieId) {
+
+        User user = userRepository.findById(id).orElseThrow();
+        Movie movie = movieRepository.findById(movieId).orElseThrow();
+        user.getFavorites().add(movie);
+        userRepository.save(user);
+
+    }
+
+    public void removeFromFavorites(Long id, Long movieId) {
+
+        User user = userRepository.findById(id).orElseThrow();
+        Movie movie = movieRepository.findById(movieId).orElseThrow();
+
+        if (user.getFavorites().contains(movie)) {
+            user.getFavorites().remove(movie);
+            userRepository.save(user);
+        } else {
+            throw new RuntimeException("Movie not found in favorites list.");
+        }
+
+    }
+
+
+
 }
