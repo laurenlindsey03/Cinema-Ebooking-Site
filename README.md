@@ -9,7 +9,7 @@ Software Engineering term project
 
 **Development Stack:**
 - Java with Spring Boot
-- MongoDB
+- MySQL
 - Reach
 - HTML
 - CSS

@@ -1,11 +1,8 @@
 package com.example.demo.services;
 
-import com.example.demo.model.Movie;
-import com.example.demo.model.Card;
 import com.example.demo.model.User;
 import com.example.demo.model.UserRole;
 import com.example.demo.model.UserStatus;
-import com.example.demo.repository.PasswordResetRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,19 +11,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional; // if DNE
 import java.util.UUID;
-import java.time.LocalDateTime;
 
 @Service
 public class UserServices {
 
     private final UserRepository userRepository;
-    private final PasswordResetRepository passwordResetRepository;
     private final JavaMailSender mailSender;
     private final BCryptPasswordEncoder hashEncoder = new BCryptPasswordEncoder();
 
-    public UserServices(UserRepository userRepository, PasswordResetRepository passwordResetRepository, JavaMailSender mailSender) {
+    public UserServices(UserRepository userRepository, JavaMailSender mailSender) {
         this.userRepository = userRepository;
-        this.passwordResetRepository = passwordResetRepository;
         this.mailSender = mailSender;
     }
 
@@ -91,7 +85,7 @@ public class UserServices {
         User user = userOptional.get();
 
         //check if account is active
-        if (!Boolean.TRUE.equals(user.getVerified()) || user.getStatus() != UserStatus.ACTIVE) {
+        if (!Boolean.TRUE.equals(user.getVerified()) || user.getUserStatus() != UserStatus.ACTIVE) {
             throw new RuntimeException("Please verify your email before logging in.");
         }
 
@@ -105,70 +99,18 @@ public class UserServices {
         return user;
     } //login
 
-    public PasswordReset requestPasswordReset(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            throw new RuntimeException("Email is required.");
-        }
 
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("No account found for that email."));
-
-        PasswordReset reset = new PasswordReset();
-        reset.setUser(user);
-        reset.setToken(UUID.randomUUID().toString());
-        reset.setExpiresAt(java.time.LocalDateTime.now().plusMinutes(30));
-        reset.setUsed(false);
-
-        PasswordReset savedReset = passwordResetRepository.save(reset);
-
-        SimpleMailMessage emailMessage = new SimpleMailMessage();
-        emailMessage.setTo(user.getEmail());
-        emailMessage.setSubject("CES Password Reset");
-        emailMessage.setText("Use this reset token to update your password: " + resetToken);
-        mailSender.send(emailMessage);
-    } //requestPasswordReset
-
-    public User resetForgottenPassword(String resetToken, String newPassword) {
-        if (resetToken == null || resetToken.trim().isEmpty()) {
-            throw new RuntimeException("Reset token is required.");
-        }
-        if (newPassword == null || newPassword.trim().isEmpty()) {
-            throw new RuntimeException("New password is required.");
-        }
-
-        PasswordReset reset = passwordResetRepository.findByToken(resetToken).orElseThrow(() -> new RuntimeException("Invalid reset token."));
-
-        if (Boolean.TRUE.equals(reset.getUsed())) {
-            throw new RuntimeException("Reset token already used.");
-        }
-
-        if (reset.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Reset token expired.");
-        }
-
-        User user = userOptional.get();
-        user.setPassword(hashEncoder.encode(newPassword));
-
-        // Rotate token so the same reset token cannot be reused.
-        user.setConfirmationNum(UUID.randomUUID().toString());
-
-        return userRepository.save(user);
-    } //resetForgottenPassword
-
-    public User editProfile() {
-
-    }
-
-    public void changePassword(Long id, String newPassword, String oldPassword) {
+    public void changePassword(Integer id, String newPassword, String oldPassword) {
 
         // find in DB
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!hashEncoder.matches(oldPassword, user.getPasswordHash())) {
             throw new RuntimeException("Current password is incorrect.");
         }
 
         // provide old password before setting new one
-        boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPassword());
+        boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPasswordHash());
         if (!passwordMatches) {
             throw new RuntimeException("New password must be different than old password.");
         }
@@ -184,34 +126,5 @@ public class UserServices {
         mailSender.send(emailMessage);
 
     }
-
-    public User addCard() {
-
-    }
-
-    public void addToFavorites(Long id, Long movieId) {
-
-        User user = userRepository.findById(id).orElseThrow();
-        Movie movie = movieRepository.findById(movieId).orElseThrow();
-        user.getFavorites().add(movie);
-        userRepository.save(user);
-
-    }
-
-    public void removeFromFavorites(Long id, Long movieId) {
-
-        User user = userRepository.findById(id).orElseThrow();
-        Movie movie = movieRepository.findById(movieId).orElseThrow();
-
-        if (user.getFavorites().contains(movie)) {
-            user.getFavorites().remove(movie);
-            userRepository.save(user);
-        } else {
-            throw new RuntimeException("Movie not found in favorites list.");
-        }
-
-    }
-
-
 
 }
