@@ -15,6 +15,9 @@ public class User {
     private String firstName;
     private String lastName;
     private String phoneNumber;
+    
+    private Address homeAddress;
+
     private String password; 
     
     @Enumerated(EnumType.STRING)
@@ -70,6 +73,14 @@ public class User {
     
     public void setPhoneNumber(String phoneNumber) { 
         this.phoneNumber = phoneNumber; 
+    }
+
+    public Address getHomeAddress() {
+        return homeAddress;
+    }
+
+    public void setHomeAddress(Address homeAddress) {
+        this.homeAddress = homeAddress;
     }
 
     public String getPassword() { 

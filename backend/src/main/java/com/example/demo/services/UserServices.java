@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.model.Movie;
 import com.example.demo.model.Card;
+import com.example.demo.model.Address;
 import com.example.demo.model.User;
 import com.example.demo.model.UserRole;
 import com.example.demo.model.UserStatus;
@@ -202,6 +203,25 @@ public class UserServices {
         emailMessage.setText("Your phone number has been changed.");
         mailSender.send(emailMessage);
         
+    }
+
+    public void changeHomeAddress(Long id, Address newHomeAddress) {
+        if (newHomeAddress == null) {
+            throw new RuntimeException("Home address is required.");
+        }
+
+        User user = userRepository.findById(id).orElseThrow(
+            () -> new RuntimeException("User not found.")
+        );
+
+        user.setHomeAddress(newHomeAddress);
+        userRepository.save(user);
+
+        SimpleMailMessage emailMessage = new SimpleMailMessage();
+        emailMessage.setTo(user.getEmail());
+        emailMessage.setSubject("CES Home Address Change");
+        emailMessage.setText("Your home address has been changed.");
+        mailSender.send(emailMessage);
     }
 
     public void addCard(Long userId, Card card) {
