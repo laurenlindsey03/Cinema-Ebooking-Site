@@ -127,7 +127,7 @@ public class UserServices {
 
         SimpleMailMessage emailMessage = new SimpleMailMessage();
         emailMessage.setTo(user.getEmail());
-        emailMessage.setSubject("CES Password Reset");
+        emailMessage.setSubject("CES Password Reset Link");
         emailMessage.setText("Use this reset token to update your password: " + resetToken);
         mailSender.send(emailMessage);
     } //requestPasswordReset
@@ -151,11 +151,16 @@ public class UserServices {
         // Rotate token so the same reset token cannot be reused.
         user.setConfirmationNum(UUID.randomUUID().toString());
 
+        SimpleMailMessage emailMessage = new SimpleMailMessage();
+        emailMessage.setTo(user.getEmail());
+        emailMessage.setSubject("CES Password Reset");
+        emailMessage.setText("Your password has been reset.");
+        mailSender.send(emailMessage);
+
         return userRepository.save(user);
     } //resetForgottenPassword
 
-    //edit profile information:
-
+    //methods to edit profile information:
     public void changePassword(Long id, String newPassword, String oldPassword) {
 
         // find in DB
@@ -171,6 +176,12 @@ public class UserServices {
         user.setPassword(hashEncoder.encode(newPassword)); 
         userRepository.save(user);
 
+        SimpleMailMessage emailMessage = new SimpleMailMessage();
+        emailMessage.setTo(user.getEmail());
+        emailMessage.setSubject("CES Password Change");
+        emailMessage.setText("Your password has been changed.");
+        mailSender.send(emailMessage);
+
     }
 
     public void changePhoneNumber(Long id, String newPhoneNumber) {
@@ -184,9 +195,16 @@ public class UserServices {
 
         user.setPhoneNumber(newPhoneNumber.trim());
         userRepository.save(user);
+
+        SimpleMailMessage emailMessage = new SimpleMailMessage();
+        emailMessage.setTo(user.getEmail());
+        emailMessage.setSubject("CES Phone Number Change");
+        emailMessage.setText("Your phone number has been changed.");
+        mailSender.send(emailMessage);
+        
     }
 
-    public User addCard(Long userId, Card card) {
+    public void addCard(Long userId, Card card) {
         // Get user from database
         User user = userRepository.findById(userId).orElseThrow(
             () -> new RuntimeException("User not found.")
@@ -200,11 +218,14 @@ public class UserServices {
         // Add the card to user's cards
         user.getCards().add(card);
 
-        // Save and return updated user
-        return userRepository.save(user);
+        SimpleMailMessage emailMessage = new SimpleMailMessage();
+        emailMessage.setTo(user.getEmail());
+        emailMessage.setSubject("CES Payment Method Added");
+        emailMessage.setText("A new payment method has been added to your account.");
+        mailSender.send(emailMessage);
     }
 
-    public User removeCard(Long userId, Long cardId) {
+    public void removeCard(Long userId, Long cardId) {
         // Get user from database
         User user = userRepository.findById(userId).orElseThrow(
             () -> new RuntimeException("User not found.")
@@ -218,8 +239,11 @@ public class UserServices {
 
         user.getCards().remove(cardToRemove);
 
-        // Save and return updated user
-        return userRepository.save(user);
+         SimpleMailMessage emailMessage = new SimpleMailMessage();
+        emailMessage.setTo(user.getEmail());
+        emailMessage.setSubject("CES Payment Method Removed");
+        emailMessage.setText("A payment method has been removed from your account.");
+        mailSender.send(emailMessage);
     }
 
     public void addToFavorites(Long id, Long movieId) {
