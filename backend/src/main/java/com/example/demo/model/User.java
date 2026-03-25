@@ -26,6 +26,8 @@ public class User {
     private String confirmationNum;
 
     private ArrayList<Movie> favorites = new ArrayList<>();
+    
+    private ArrayList<Card> cards = new ArrayList<>();
 
     public User() {
     }
@@ -108,6 +110,14 @@ public class User {
 
     public void setFavorites(ArrayList<Movie> favorites) { 
         this.favorites = favorites; 
+    }
+
+    public ArrayList<Card> getCards() { 
+        return cards; 
+    }
+
+    public void setCards(ArrayList<Card> cards) { 
+        this.cards = cards; 
     }
 
     

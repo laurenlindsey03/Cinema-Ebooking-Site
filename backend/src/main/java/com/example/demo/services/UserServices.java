@@ -175,8 +175,22 @@ public class UserServices {
 
     }
 
-    public User addCard() {
+    public User addCard(Long userId, Card card) {
+        // Get user from database
+        User user = userRepository.findById(userId).orElseThrow(
+            () -> new RuntimeException("User not found.")
+        );
 
+        // Check if user already has 3 cards
+        if (user.getCards().size() >= 3) {
+            throw new RuntimeException("User can only have a maximum of 3 saved cards.");
+        }
+
+        // Add the card to user's cards
+        user.getCards().add(card);
+
+        // Save and return updated user
+        return userRepository.save(user);
     }
 
     public void addToFavorites(Long id, Long movieId) {
@@ -201,7 +215,5 @@ public class UserServices {
         }
 
     }
-
-
 
 }
