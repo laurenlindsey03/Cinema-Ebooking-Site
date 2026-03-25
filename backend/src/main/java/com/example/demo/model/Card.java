@@ -1,45 +1,63 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "paymentCards") //PLACEHOLDER
+@Table(name = "payment_cards") 
 
 public class Card {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "card_id")
+    private Integer cardId;
 
-    private String cardNumber; // only storing hashed cardNumber
-    private String expirationDate;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(name = "encrypted_card_number", nullable = false)
+    private String encryptedCardNumber; // only storing hashed cardNumber
+    
+    @Column(name = "expiration_date")
+    private LocalDate expirationDate;
+
+    @Column(name = "billing_address")
     private String billingAddress;
-    private String CVV;
 
     public Card() {
     }
 
-    public Long getId() { 
-        return id; 
+    public Integer getCardId() { 
+        return cardId; 
     }
 
-    public void setId(Long id) { 
-        this.id = id; 
+    public void setCardId(Integer cardId) { 
+        this.cardId = cardId; 
     }
 
-    public String getCardNumber() { 
-        return cardNumber; 
+    public User getUser() {
+        return user;
     }
 
-    public void setCardNumber(String cardNumber) { 
-        this.cardNumber = cardNumber; 
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public String getExpirationDate() { 
+    public String getEncryptedCardNumber() { 
+        return encryptedCardNumber; 
+    }
+
+    public void setEncryptedCardNumber(String encryptedCardNumber) { 
+        this.encryptedCardNumber = encryptedCardNumber; 
+    }
+
+    public LocalDate getExpirationDate() { 
         return expirationDate; 
     }
 
-    public void setExpirationDate(String expirationDate) { 
+    public void setExpirationDate(LocalDate expirationDate) { 
         this.expirationDate = expirationDate; 
     }
 
@@ -51,12 +69,4 @@ public class Card {
         this.billingAddress = billingAddress; 
     }
 
-    public String getCVV() {
-        return CVV;
-    }
-
-    public void setCVV(String cvv) {
-        this.CVV = cvv;
-    }
-    
 }

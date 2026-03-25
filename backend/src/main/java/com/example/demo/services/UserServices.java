@@ -1,79 +1,75 @@
 package com.example.demo.services;
 
-import com.example.demo.model.Movie;
-import com.example.demo.model.Card;
+import com.example.demo.model.PasswordReset;
 import com.example.demo.model.User;
 import com.example.demo.model.UserRole;
 import com.example.demo.model.UserStatus;
-import com.example.demo.repository.MovieRepository;
+import com.example.demo.repository.PasswordResetRepository;
 import com.example.demo.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import java.util.Optional; // if DNE
-
-import java.util.UUID;
-
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional; // if DNE
+import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Service
 public class UserServices {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder hashEncoder = new BCryptPasswordEncoder();
+    private final PasswordResetRepository passwordResetRepository;
     private final JavaMailSender mailSender;
-    private final MovieRepository movieRepository;
+    private final BCryptPasswordEncoder hashEncoder = new BCryptPasswordEncoder();
 
-    public UserServices(UserRepository userRepository, JavaMailSender mailSender, MovieRepository movieRepository) {
+    public UserServices(UserRepository userRepository, PasswordResetRepository passwordResetRepository, JavaMailSender mailSender) {
         this.userRepository = userRepository;
+        this.passwordResetRepository = passwordResetRepository;
         this.mailSender = mailSender;
-        this.movieRepository = movieRepository;
     }
 
     public User register(User newUser) {
 
         // check that user does not already exist in DB
-        boolean userExists = userRepository.findEmail(newUser.getEmail()).isPresent();
+        boolean userExists = userRepository.findByEmail(newUser.getEmail()).isPresent();
         if (userExists) {
             throw new RuntimeException("User is already registered, cannot create a new account.");
         }
 
-        newUser.setPassword(hashEncoder.encode(newUser.getPassword())); 
-        newUser.setUserStatus(UserStatus.INACTIVE);
+        newUser.setPasswordHash(hashEncoder.encode(newUser.getPasswordHash())); 
+        newUser.setStatus(UserStatus.INACTIVE);
         newUser.setRole(UserRole.CUSTOMER);
-        newUser.setConfirmationNum(UUID.randomUUID().toString());
-
-        // save to DB
-        User registeredUser = userRepository.save(newUser);
-
-        // send confirmation email
-        String recipient = registeredUser.getEmail();
-        SimpleMailMessage email = new SimpleMailMessage();
-        email.setTo(recipient);
-        email.setSubject("CES New User Registration Confirmation");
-
-        String message = "Your user registration confirmation number is: " + registeredUser.getConfirmationNum();
-        email.setText(message);
+        newUser.setVerified(false);
+        newUser.setVerificationToken(UUID.randomUUID().toString());
         
-        mailSender.send(email);
+        User savedUser = userRepository.save(newUser);
+        sendVerificationEmail(savedUser);
 
-        return registeredUser;
+        return savedUser;
     }
 
-    public boolean verifiedAccount(String confirmationNum) {
-        Optional<User> newUser = userRepository.findConfirmationNum(confirmationNum);
-        
-        if (newUser.isPresent()) {
-            User user = newUser.get();
+    public void sendVerificationEmail(User user) {
+        String verifyLink = "http://localhost:8080/users/verify?token=" + user.getVerificationToken();
 
-            user.setUserStatus(UserStatus.ACTIVE);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(user.getEmail());
+        message.setSubject("Verify your Cinema E-Booking account");
+        message.setText("click this link to verify your account: " + verifyLink);
 
-            userRepository.save(user);
+        mailSender.send(message);
+    }
 
-            return true;
-        }
+    public String verifyAccount(String token) {
+        User user = userRepository.findByVerificationToken(token).orElseThrow(() -> new RuntimeException("Invalid verification token"));
 
-        return false;
+        user.setVerified(true);
+        user.setStatus(UserStatus.ACTIVE);
+        user.setVerificationToken(null);
+        userRepository.save(user);
+
+        return "Account verified successfully";
+      
     }
 
     public User login(String email, String password) {
@@ -86,20 +82,20 @@ public class UserServices {
         }
 
         //check if user is in database
-        Optional<User> userOptional = userRepository.findEmail(email);
-        if (!userOptional.isPresent()) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (!userOptional.isEmpty()) {
             throw new RuntimeException("Invalid email.");
         }
 
         User user = userOptional.get();
 
         //check if account is active
-        if (user.getUserStatus() != UserStatus.ACTIVE) {
-            throw new RuntimeException("Please verify your email and log in again.");
+        if (!Boolean.TRUE.equals(user.getVerified()) || user.getStatus() != UserStatus.ACTIVE) {
+            throw new RuntimeException("Please verify your email before logging in.");
         }
 
         // Validate password
-        boolean passwordMatches = hashEncoder.matches(password, user.getPassword());
+        boolean passwordMatches = hashEncoder.matches(password, user.getPasswordHash());
         if (!passwordMatches) {
             throw new RuntimeException("Invalid password.");
         }
@@ -108,28 +104,28 @@ public class UserServices {
         return user;
     } //login
 
-    public void requestPasswordReset(String email) {
+    public PasswordReset requestPasswordReset(String email) {
         if (email == null || email.trim().isEmpty()) {
             throw new RuntimeException("Email is required.");
         }
 
-        Optional<User> userOptional = userRepository.findEmail(email);
-        if (!userOptional.isPresent()) {
-            throw new RuntimeException("No account found for that email.");
-        }
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("No account found for that email."));
 
-        User user = userOptional.get();
+        PasswordReset reset = new PasswordReset();
+        reset.setUser(user);
+        reset.setToken(UUID.randomUUID().toString());
+        reset.setExpiresAt(java.time.LocalDateTime.now().plusMinutes(30));
+        reset.setUsed(false);
 
-        // Reuse confirmationNum as a one-time reset token.
-        String resetToken = UUID.randomUUID().toString();
-        user.setConfirmationNum(resetToken);
-        userRepository.save(user);
+        PasswordReset savedReset = passwordResetRepository.save(reset);
 
-        SimpleMailMessage emailMessage = new SimpleMailMessage();
-        emailMessage.setTo(user.getEmail());
-        emailMessage.setSubject("CES Password Reset");
-        emailMessage.setText("Use this reset token to update your password: " + resetToken);
-        mailSender.send(emailMessage);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(user.getEmail());
+        message.setSubject("CES Password Reset Request");
+        message.setText("Use this reset token to update your password: " + savedReset.getToken());
+        mailSender.send(message);
+
+        return savedReset;
     } //requestPasswordReset
 
     public User resetForgottenPassword(String resetToken, String newPassword) {
@@ -140,68 +136,62 @@ public class UserServices {
             throw new RuntimeException("New password is required.");
         }
 
-        Optional<User> userOptional = userRepository.findConfirmationNum(resetToken);
-        if (!userOptional.isPresent()) {
-            throw new RuntimeException("Invalid reset token.");
+        PasswordReset reset = passwordResetRepository.findByToken(resetToken).orElseThrow(() -> new RuntimeException("Invalid reset token."));
+
+        if (Boolean.TRUE.equals(reset.getUsed())) {
+            throw new RuntimeException("Reset token already used.");
         }
 
-        User user = userOptional.get();
-        user.setPassword(hashEncoder.encode(newPassword));
+        if (reset.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Reset token expired.");
+        }
 
-        // Rotate token so the same reset token cannot be reused.
-        user.setConfirmationNum(UUID.randomUUID().toString());
+        User user = reset.getUser();
+        user.setPasswordHash(hashEncoder.encode(newPassword));
+        userRepository.save(user);
 
-        return userRepository.save(user);
+        reset.setUsed(true);
+        passwordResetRepository.save(reset);
+        return user;
     } //resetForgottenPassword
 
-    public User editProfile() {
-
-    }
-
-    public void changePassword(Long id, String newPassword, String oldPassword) {
+    public void changePassword(Integer userId, String newPassword, String oldPassword) {
 
         // find in DB
-        User user = userRepository.findById(id).orElseThrow();
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!hashEncoder.matches(oldPassword, user.getPasswordHash())) {
+            throw new RuntimeException("Current password is incorrect.");
+        }
 
         // provide old password before setting new one
-        boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPassword());
+        boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPasswordHash());
         if (!passwordMatches) {
             throw new RuntimeException("New password must be different than old password.");
         }
 
         // update password
-        user.setPassword(hashEncoder.encode(newPassword)); 
+        user.setPasswordHash(hashEncoder.encode(newPassword)); 
         userRepository.save(user);
 
     }
 
-    public User addCard() {
+    public User updateProfile(Integer userId, User incomingUser) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
+        user.setFirstName(incomingUser.getFirstName());
+        user.setLastName(incomingUser.getLastName());
+        user.setPhoneNumber(incomingUser.getPhoneNumber());
+
+        User savedUser = userRepository.save(user);
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(savedUser.getEmail());
+        message.setSubject("Profile Updated");
+        message.setText("Your profile information was changed.");
+
+        mailSender.send(message);
+
+        return savedUser;
     }
-
-    public void addToFavorites(Long id, Long movieId) {
-
-        User user = userRepository.findById(id).orElseThrow();
-        Movie movie = movieRepository.findById(movieId).orElseThrow();
-        user.getFavorites().add(movie);
-        userRepository.save(user);
-
-    }
-
-    public void removeFromFavorites(Long id, Long movieId) {
-
-        User user = userRepository.findById(id).orElseThrow();
-        Movie movie = movieRepository.findById(movieId).orElseThrow();
-
-        if (user.getFavorites().contains(movie)) {
-            user.getFavorites().remove(movie);
-            userRepository.save(user);
-        } else {
-            throw new RuntimeException("Movie not found in favorites list.");
-        }
-
-    }
-
-
-
 }

@@ -1,45 +1,70 @@
 package com.example.demo.model;
 
-import java.util.ArrayList;
-
+import java.time.LocalDateTime;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "users") //PLACEHOLDER
+@Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String email;
+    @Column(name = "user_id")
+    private Integer userId;
+
+    @Column(name = "first_name")
     private String firstName;
+
+    @Column(name = "last_name")
     private String lastName;
+
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
+    @Column(name = "phone_number")
     private String phoneNumber;
-    private String password; 
+
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash; 
     
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private UserStatus status;  
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     private UserRole role;
 
-    private String confirmationNum;
+    @Column(name = "verification_token")
+    private String verificationToken;
 
-    private ArrayList<Movie> favorites = new ArrayList<>();
+    @Column(name = "verified")
+    private Boolean verified = false;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     public User() {
     }
     
-    public Long getId() { 
-        return id; 
+    public Integer getUserId() { 
+        return userId; 
     }
 
-    public void setId(Long id) { 
-        this.id = id; 
+    public void setUserId(Integer userId) { 
+        this.userId = userId; 
     }
 
     public String getEmail() { 
         return email; 
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public void setEmail(String email) { 
@@ -62,27 +87,19 @@ public class User {
         this.lastName = lastName; 
     }
 
-    public String getPhoneNumber() { 
-        return phoneNumber; 
+    public String getPasswordHash() { 
+        return passwordHash; 
     }
     
-    public void setPhoneNumber(String phoneNumber) { 
-        this.phoneNumber = phoneNumber; 
+    public void setPasswordHash(String passwordHash) { 
+        this.passwordHash = passwordHash; 
     }
 
-    public String getPassword() { 
-        return password; 
-    }
-    
-    public void setPassword(String password) { 
-        this.password = password; 
-    }
-
-    public UserStatus getUserStatus() { 
+    public UserStatus getStatus() { 
         return status; 
     }
 
-    public void setUserStatus(UserStatus status) { 
+    public void setStatus(UserStatus status) { 
         this.status = status; 
     }
 
@@ -94,21 +111,27 @@ public class User {
         this.role = role; 
     }
 
-    public String getConfirmationNum() { 
-        return confirmationNum; 
+    public String getVerificationToken() {
+        return verificationToken;
     }
 
-    public void setConfirmationNum(String confirmationNum) { 
-        this.confirmationNum = confirmationNum; 
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
     }
 
-    public ArrayList<Movie> getFavorites() { 
-        return favorites; 
+    public Boolean getVerified() {
+        return verified;
     }
-
-    public void setFavorites(ArrayList<Movie> favorites) { 
-        this.favorites = favorites; 
-    }
-
     
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
