@@ -167,10 +167,14 @@ public class UserServices {
         // find in DB
         User user = userRepository.findById(id).orElseThrow();
 
-        // provide old password before setting new one
-        boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPassword());
-        if (!passwordMatches) {
-            throw new RuntimeException("New password must be different than old password.");
+        boolean passwordCorrect = hashEncoder.matches(oldPassword, user.getPassword());
+
+        if (!passwordCorrect) {
+            throw new RuntimeException("Password provided is incorrect.");
+        }
+
+        if (oldPassword.equals(newPassword)) {
+             throw new RuntimeException("New password must be different than old password.");
         }
 
         // update password
