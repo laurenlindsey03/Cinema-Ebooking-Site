@@ -154,9 +154,7 @@ public class UserServices {
         return userRepository.save(user);
     } //resetForgottenPassword
 
-    public User editProfile() {
-
-    }
+    //edit profile information:
 
     public void changePassword(Long id, String newPassword, String oldPassword) {
 
@@ -173,6 +171,19 @@ public class UserServices {
         user.setPassword(hashEncoder.encode(newPassword)); 
         userRepository.save(user);
 
+    }
+
+    public void changePhoneNumber(Long id, String newPhoneNumber) {
+        if (newPhoneNumber == null || newPhoneNumber.trim().isEmpty()) {
+            throw new RuntimeException("Phone number is required.");
+        }
+
+        User user = userRepository.findById(id).orElseThrow(
+            () -> new RuntimeException("User not found.")
+        );
+
+        user.setPhoneNumber(newPhoneNumber.trim());
+        userRepository.save(user);
     }
 
     public User addCard(Long userId, Card card) {
@@ -233,5 +244,7 @@ public class UserServices {
         }
 
     }
+
+    
 
 }
