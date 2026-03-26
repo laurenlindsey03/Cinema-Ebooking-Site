@@ -50,7 +50,7 @@ public class UserServices {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(user.getEmail());
         message.setSubject("Verify your Cinema E-Booking account");
-        message.setText("click this link to verify your account: " + verifyLink);
+        message.setText("Click this link to verify your account: " + verifyLink);
 
         mailSender.send(message);
     }
@@ -63,7 +63,7 @@ public class UserServices {
         user.setVerificationToken(null);
         userRepository.save(user);
 
-        return "Account verified successfully";
+        return "Account verified successfully.";
       
     }
 
