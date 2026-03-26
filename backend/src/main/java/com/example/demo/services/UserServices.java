@@ -110,59 +110,7 @@ public class UserServices {
             throw new RuntimeException("Email is required.");
         }
 
-<<<<<<< Updated upstream
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("No account found for that email."));
-
-        PasswordReset reset = new PasswordReset();
-        reset.setUser(user);
-        reset.setToken(UUID.randomUUID().toString());
-        reset.setExpiresAt(java.time.LocalDateTime.now().plusMinutes(30));
-        reset.setUsed(false);
-
-        PasswordReset savedReset = passwordResetRepository.save(reset);
-
-        SimpleMailMessage emailMessage = new SimpleMailMessage();
-        emailMessage.setTo(user.getEmail());
-        emailMessage.setSubject("CES Password Reset");
-        emailMessage.setText("Use this reset token to update your password: " + resetToken);
-        mailSender.send(emailMessage);
-    } //requestPasswordReset
-
-    public User resetForgottenPassword(String resetToken, String newPassword) {
-        if (resetToken == null || resetToken.trim().isEmpty()) {
-            throw new RuntimeException("Reset token is required.");
-        }
-        if (newPassword == null || newPassword.trim().isEmpty()) {
-            throw new RuntimeException("New password is required.");
-        }
-
-        PasswordReset reset = passwordResetRepository.findByToken(resetToken).orElseThrow(() -> new RuntimeException("Invalid reset token."));
-
-        if (Boolean.TRUE.equals(reset.getUsed())) {
-            throw new RuntimeException("Reset token already used.");
-        }
-
-        if (reset.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Reset token expired.");
-        }
-
-        User user = userOptional.get();
-        user.setPassword(hashEncoder.encode(newPassword));
-
-        // Rotate token so the same reset token cannot be reused.
-        user.setConfirmationNum(UUID.randomUUID().toString());
-
-        return userRepository.save(user);
-    } //resetForgottenPassword
-
-    public User editProfile() {
-
-    }
-
-    public void changePassword(Long id, String newPassword, String oldPassword) {
-=======
     public void changePassword(Integer id, String oldPassword, String newPassword) {
->>>>>>> Stashed changes
 
         // find in DB
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
@@ -172,14 +120,8 @@ public class UserServices {
         }
 
         // provide old password before setting new one
-<<<<<<< Updated upstream
-        boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPassword());
-        if (!passwordMatches) {
-            throw new RuntimeException("New password must be different than old password.");
-=======
        if (hashEncoder.matches(newPassword, user.getPasswordHash())) {
             throw new RuntimeException("New password must be different.");
->>>>>>> Stashed changes
         }
 
         user.setPasswordHash(hashEncoder.encode(newPassword));
@@ -193,41 +135,9 @@ public class UserServices {
 
     }
 
-<<<<<<< Updated upstream
-    public User addCard() {
-
-    }
-
-    public void addToFavorites(Long id, Long movieId) {
-
-        User user = userRepository.findById(id).orElseThrow();
-        Movie movie = movieRepository.findById(movieId).orElseThrow();
-        user.getFavorites().add(movie);
-        userRepository.save(user);
-
-    }
-
-    public void removeFromFavorites(Long id, Long movieId) {
-
-        User user = userRepository.findById(id).orElseThrow();
-        Movie movie = movieRepository.findById(movieId).orElseThrow();
-
-        if (user.getFavorites().contains(movie)) {
-            user.getFavorites().remove(movie);
-            userRepository.save(user);
-        } else {
-            throw new RuntimeException("Movie not found in favorites list.");
-        }
-
-    }
-
-
-
-=======
     public User getUserById(Integer userId) {
         return userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
->>>>>>> Stashed changes
 }
