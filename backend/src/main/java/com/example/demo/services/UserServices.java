@@ -78,7 +78,7 @@ public class UserServices {
 
         //check if user is in database
         Optional<User> userOptional = userRepository.findByEmail(email);
-        if (!userOptional.isEmpty()) {
+        if (userOptional.isEmpty()) {
             throw new RuntimeException("Invalid email.");
         }
 
@@ -100,7 +100,7 @@ public class UserServices {
     } //login
 
 
-    public void changePassword(Integer id, String newPassword, String oldPassword) {
+    public void changePassword(Integer id, String oldPassword, String newPassword) {
 
         // find in DB
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
@@ -110,13 +110,11 @@ public class UserServices {
         }
 
         // provide old password before setting new one
-        boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPasswordHash());
-        if (!passwordMatches) {
-            throw new RuntimeException("New password must be different than old password.");
+       if (hashEncoder.matches(newPassword, user.getPasswordHash())) {
+            throw new RuntimeException("New password must be different.");
         }
 
-        // update password
-        user.setPasswordHash(hashEncoder.encode(newPassword)); 
+        user.setPasswordHash(hashEncoder.encode(newPassword));
         userRepository.save(user);
 
         SimpleMailMessage emailMessage = new SimpleMailMessage();
@@ -125,6 +123,11 @@ public class UserServices {
         emailMessage.setText("Your password has been changed.");
         mailSender.send(emailMessage);
 
+    }
+
+    public User getUserById(Integer userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
 }

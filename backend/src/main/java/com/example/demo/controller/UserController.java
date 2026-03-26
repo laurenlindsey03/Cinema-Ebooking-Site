@@ -28,6 +28,11 @@ public class UserController {
         return userServices.verifyAccount(token);
     }
 
+    @GetMapping("/{userId}")
+        public User getUser(@PathVariable Integer userId) {
+        return userServices.getUserById(userId);
+    }
+
     @PostMapping("/login")
     public User login(@RequestBody Map<String, String> body) {
         return userServices.login(body.get("email"), body.get("password"));
