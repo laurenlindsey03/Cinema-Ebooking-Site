@@ -38,19 +38,15 @@ public class UserController {
         return userServices.login(body.get("email"), body.get("password"));
     }
 
-    /* 
     @PostMapping("/forgot-password")
     public PasswordReset forgotPassword(@RequestBody Map<String, String> body) {
         return userServices.requestPasswordReset(body.get("email"));
     }
-    */
 
-    /* 
     @PostMapping("/reset-password")
     public User resetPassword(@RequestBody Map<String, String> body) {
-        return userServices.resetPassword(body.get("token"), body.get("newPassword"));
+        return userServices.resetForgottenPassword(body.get("token"), body.get("newPassword"));
     }
-    */
 
     @PutMapping("/{userId}/change-password")
     public String changePassword(@PathVariable Integer userId, @RequestBody Map<String, String> body) {
@@ -58,11 +54,8 @@ public class UserController {
         return "Password changed successfully";
     }
 
-    /* 
     @PutMapping("/{userId}/profile")
     public User updateProfile(@PathVariable Integer userId, @RequestBody User user) {
         return userServices.updateProfile(userId, user);
     }
-    */
-   
 }
