@@ -20,3 +20,7 @@ cd backend
 ** open new terminal window **
 cd my-app 
 npm run dev // must have run npm install first
+
+
+**team8cesebooking@gmail.com**
+Used for all automated emails from the ebooking site.

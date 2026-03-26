@@ -4,6 +4,8 @@ import com.example.demo.model.PasswordReset;
 import com.example.demo.model.User;
 import com.example.demo.repository.PasswordResetRepository;
 import com.example.demo.repository.UserRepository;
+
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
