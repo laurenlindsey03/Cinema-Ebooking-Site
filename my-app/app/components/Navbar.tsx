@@ -6,12 +6,12 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
+    const userId = localStorage.getItem("userId");
+    setIsLoggedIn(!!userId);
   }, []);
 
   function handleLogout() {
-    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
     localStorage.removeItem("role");
     window.location.href = "/";
   }

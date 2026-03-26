@@ -84,7 +84,7 @@ public class UserServices {
 
         //check if user is in database
         Optional<User> userOptional = userRepository.findByEmail(email);
-        if (!userOptional.isEmpty()) {
+        if (userOptional.isEmpty()) {
             throw new RuntimeException("Invalid email.");
         }
 
@@ -110,6 +110,7 @@ public class UserServices {
             throw new RuntimeException("Email is required.");
         }
 
+<<<<<<< Updated upstream
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("No account found for that email."));
 
         PasswordReset reset = new PasswordReset();
@@ -159,6 +160,9 @@ public class UserServices {
     }
 
     public void changePassword(Long id, String newPassword, String oldPassword) {
+=======
+    public void changePassword(Integer id, String oldPassword, String newPassword) {
+>>>>>>> Stashed changes
 
         // find in DB
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
@@ -168,13 +172,17 @@ public class UserServices {
         }
 
         // provide old password before setting new one
+<<<<<<< Updated upstream
         boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPassword());
         if (!passwordMatches) {
             throw new RuntimeException("New password must be different than old password.");
+=======
+       if (hashEncoder.matches(newPassword, user.getPasswordHash())) {
+            throw new RuntimeException("New password must be different.");
+>>>>>>> Stashed changes
         }
 
-        // update password
-        user.setPasswordHash(hashEncoder.encode(newPassword)); 
+        user.setPasswordHash(hashEncoder.encode(newPassword));
         userRepository.save(user);
 
         SimpleMailMessage emailMessage = new SimpleMailMessage();
@@ -185,6 +193,7 @@ public class UserServices {
 
     }
 
+<<<<<<< Updated upstream
     public User addCard() {
 
     }
@@ -214,4 +223,11 @@ public class UserServices {
 
 
 
+=======
+    public User getUserById(Integer userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+>>>>>>> Stashed changes
 }

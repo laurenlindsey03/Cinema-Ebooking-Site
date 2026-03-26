@@ -18,24 +18,31 @@ const Login = () => {
       const email = formData.get("email") as string;
       const password = formData.get("password") as string;
 
-      const response = await fetch("http://localhost:8080/api/auth/login", {
+      const response = await fetch("http://localhost:8080/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        setError(errorText || "Login failed");
+        return;
+      }
       const data = await response.json();
 
-      if (!response.ok) {
-        setError("Check your credentials");
+      console.log("LOGIN RESPONSE:", data);
+
+      const id = data.userId || data.id;
+
+      if (!id) {
+        setError("Login failed: no user id returned");
         return;
       }
 
-      // Store session info once
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", id.toString());
       localStorage.setItem("role", data.role);
 
-      // Force refresh so navbar updates
       window.location.href = data.role === "ADMIN" ? "/admin" : "/";
 
     } catch (e) {
