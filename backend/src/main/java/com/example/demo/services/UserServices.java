@@ -1,8 +1,11 @@
 package com.example.demo.services;
 
+import com.example.demo.model.Movie;
+import com.example.demo.model.Card;
 import com.example.demo.model.User;
 import com.example.demo.model.UserRole;
 import com.example.demo.model.UserStatus;
+import com.example.demo.repository.PasswordResetRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -11,16 +14,19 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional; // if DNE
 import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Service
 public class UserServices {
 
     private final UserRepository userRepository;
+    private final PasswordResetRepository passwordResetRepository;
     private final JavaMailSender mailSender;
     private final BCryptPasswordEncoder hashEncoder = new BCryptPasswordEncoder();
 
-    public UserServices(UserRepository userRepository, JavaMailSender mailSender) {
+    public UserServices(UserRepository userRepository, PasswordResetRepository passwordResetRepository, JavaMailSender mailSender) {
         this.userRepository = userRepository;
+        this.passwordResetRepository = passwordResetRepository;
         this.mailSender = mailSender;
     }
 
@@ -78,14 +84,14 @@ public class UserServices {
 
         //check if user is in database
         Optional<User> userOptional = userRepository.findByEmail(email);
-        if (!userOptional.isEmpty()) {
+        if (userOptional.isEmpty()) {
             throw new RuntimeException("Invalid email.");
         }
 
         User user = userOptional.get();
 
         //check if account is active
-        if (!Boolean.TRUE.equals(user.getVerified()) || user.getUserStatus() != UserStatus.ACTIVE) {
+        if (!Boolean.TRUE.equals(user.getVerified()) || user.getStatus() != UserStatus.ACTIVE) {
             throw new RuntimeException("Please verify your email before logging in.");
         }
 
@@ -99,24 +105,26 @@ public class UserServices {
         return user;
     } //login
 
+    public PasswordReset requestPasswordReset(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new RuntimeException("Email is required.");
+        }
 
-    public void changePassword(Integer id, String newPassword, String oldPassword) {
+    public void changePassword(Integer id, String oldPassword, String newPassword) {
 
         // find in DB
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!hashEncoder.matches(oldPassword, user.getPasswordHash())) {
             throw new RuntimeException("Current password is incorrect.");
         }
 
         // provide old password before setting new one
-        boolean passwordMatches = hashEncoder.matches(oldPassword, user.getPasswordHash());
-        if (!passwordMatches) {
-            throw new RuntimeException("New password must be different than old password.");
+       if (hashEncoder.matches(newPassword, user.getPasswordHash())) {
+            throw new RuntimeException("New password must be different.");
         }
 
-        // update password
-        user.setPasswordHash(hashEncoder.encode(newPassword)); 
+        user.setPasswordHash(hashEncoder.encode(newPassword));
         userRepository.save(user);
 
         SimpleMailMessage emailMessage = new SimpleMailMessage();
@@ -125,6 +133,11 @@ public class UserServices {
         emailMessage.setText("Your password has been changed.");
         mailSender.send(emailMessage);
 
+    }
+
+    public User getUserById(Integer userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
 }

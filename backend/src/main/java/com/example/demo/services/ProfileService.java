@@ -81,6 +81,13 @@ public class ProfileService {
         return userPreferenceRepository.findById(userId).orElse(null);
     }
 
+    public Address getAddress(Integer userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return addressRepository.findByUser(user).orElse(null);
+    }
+
     private String encryptCardNumber(String cardNumber) {
         try {
             SecretKeySpec key = new SecretKeySpec(SECRET.getBytes(), "AES");

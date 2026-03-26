@@ -1,21 +1,23 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Movie } from "../types/Movie";
 
-type MovieCarouselProps = {
+type Props = {
   movies: Movie[];
 };
 
-export default function MovieCarousel({ movies }: MovieCarouselProps) {
+export default function MovieCarousel({ movies }: Props) {
   const [current, setCurrent] = useState(0);
+  const [userId, setUserId] = useState<number | null>(null);
 
-  if (!movies || movies.length === 0) {
-    return <div>No movies available</div>;
-  }
-
-  const movie = movies[current];
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(parseInt(storedUserId));
+    }
+  }, []);
 
   const posterMap: { [key: string]: string } = {
     "Crime 101": "/images/Crime101.jpeg",
@@ -30,112 +32,61 @@ export default function MovieCarousel({ movies }: MovieCarouselProps) {
     "Wuthering Heights": "/images/WutheringHeights.jpeg",
   };
 
-  async function handleAddFavorite() {
+  if (movies.length === 0) return <div>No movies available</div>;
+
+  const movie = movies[current];
+
+  async function addFavorite() {
+    if (!userId) {
+      alert("Please log in first.");
+      return;
+    }
+
     try {
       const response = await fetch(
-        `http://localhost:8080/api/users/favorites/${movie.id}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+        `http://localhost:8080/favorites/${userId}/${movie.id}`,
+        { method: "POST" }
       );
 
       if (response.ok) {
         alert("Added to favorites!");
       } else {
-        alert("Could not add to favorites.");
+        const error = await response.text();
+        console.log(error);
+        alert("Already added or error occurred.");
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       alert("Error adding favorite.");
     }
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: "30px"
-      }}
-    >
-      {/* Poster */}
+    <div style={containerStyle}>
       <Link href={`/movie/${movie.id}`}>
         <img
-          src={posterMap[movie.title] || "/images/WutheringHeights.jpeg"}
+          src={posterMap[movie.title] || "/images/default.jpg"}
           alt={movie.title}
-          style={{
-            width: "300px",
-            height: "450px",
-            borderRadius: "12px",
-            cursor: "pointer",
-            boxShadow: "0 8px 20px rgba(0,0,0,0.5)"
-          }}
+          style={imageStyle}
         />
       </Link>
 
-      {/* Title */}
-      <h3
-        style={{
-          marginTop: "15px",
-          fontSize: "20px",
-          color: "white"
-        }}
-      >
+      <div style={{ fontWeight: 600, fontSize: 18, color: "white" }}>
         {movie.title}
-      </h3>
+      </div>
 
-      {/* Categories */}
-      <p style={{ color: "#bbbbbb", marginBottom: "10px" }}>
-        {movie.categories?.join(", ")}
-      </p>
+      {userId && (
+        <button onClick={addFavorite} style={favoriteButton}>
+          Add to Favorites
+        </button>
+      )}
 
-      {/* Add to Favorites Button */}
-      <button
-  onClick={handleAddFavorite}
-  style={{
-    padding: "6px 14px",
-    background: "transparent",
-    color: "#FFCC00",
-    border: "1px solid #FFCC00",
-    borderRadius: "20px",
-    cursor: "pointer",
-    fontSize: "14px",
-    fontFamily: "cursive",
-    letterSpacing: "0.5px",
-    marginBottom: "20px",
-    transition: "all 0.2s ease"
-  }}
-  onMouseOver={(e) => {
-    e.currentTarget.style.background = "#FFCC00";
-    e.currentTarget.style.color = "white";
-  }}
-  onMouseOut={(e) => {
-    e.currentTarget.style.background = "transparent";
-    e.currentTarget.style.color = "#FFCC00";
-  }}
->
-  Add to Favorites
-</button>
-
-      {/* Navigation Buttons */}
       <div>
         <button
           onClick={() =>
             setCurrent(current === 0 ? movies.length - 1 : current - 1)
           }
-          style={{
-            background: "#333",
-            color: "white",
-            padding: "6px 12px",
-            borderRadius: 6,
-            border: "none",
-            cursor: "pointer",
-            marginRight: "10px"
-          }}
+          style={navButton}
         >
           Previous
         </button>
@@ -144,23 +95,51 @@ export default function MovieCarousel({ movies }: MovieCarouselProps) {
           onClick={() =>
             setCurrent(current === movies.length - 1 ? 0 : current + 1)
           }
-          style={{
-            background: "#333",
-            color: "white",
-            padding: "6px 12px",
-            borderRadius: 6,
-            border: "none",
-            cursor: "pointer"
-          }}
+          style={navButton}
         >
           Next
         </button>
       </div>
 
-      {/* Counter */}
-      <p style={{ marginTop: "10px", color: "#aaaaaa" }}>
+      <div style={{ color: "#aaa" }}>
         {current + 1} / {movies.length}
-      </p>
+      </div>
     </div>
   );
 }
+
+const containerStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 12,
+  padding: 20,
+};
+
+const imageStyle: React.CSSProperties = {
+  width: "300px",
+  height: "450px",
+  borderRadius: 10,
+  cursor: "pointer",
+};
+
+const navButton: React.CSSProperties = {
+  background: "#E50914",
+  color: "white",
+  padding: "6px 12px",
+  borderRadius: 6,
+  border: "none",
+  cursor: "pointer",
+  margin: "0 8px",
+};
+
+const favoriteButton: React.CSSProperties = {
+  background: "#FFCC00",
+  color: "black",
+  padding: "6px 14px",
+  borderRadius: "20px",
+  border: "none",
+  fontSize: "13px",
+  fontStyle: "italic",
+  cursor: "pointer",
+};
