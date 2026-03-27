@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 import com.example.demo.model.PasswordReset;
 import com.example.demo.services.PasswordResetService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -16,9 +18,11 @@ public class PasswordResetController {
         this.passwordResetService = passwordResetService;
     }
 
-    @PostMapping("/request/{userId}")
-    public PasswordReset requestReset(@PathVariable Integer userId) {
-        return passwordResetService.createResetToken(userId);
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> requestReset(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        passwordResetService.requestPasswordReset(email);
+        return ResponseEntity.ok("link sent");
     }
 
     @PostMapping("/reset")

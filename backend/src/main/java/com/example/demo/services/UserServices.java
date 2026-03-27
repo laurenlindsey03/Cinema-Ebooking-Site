@@ -119,7 +119,7 @@ public class UserServices {
 
         SimpleMailMessage emailMessage = new SimpleMailMessage();
         emailMessage.setTo(user.getEmail());
-        emailMessage.setSubject("CES Password Change");
+        emailMessage.setSubject("Cinema E-Booking Password Change");
         emailMessage.setText("Your password has been changed.");
         mailSender.send(emailMessage);
 
