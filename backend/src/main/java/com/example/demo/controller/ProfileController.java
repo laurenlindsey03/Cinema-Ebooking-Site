@@ -23,6 +23,11 @@ public class ProfileController {
         return profileService.saveOrUpdateAddress(userId, address);
     }
 
+    @GetMapping("/address/{userId}")
+    public Address getAddress(@PathVariable Integer userId) {
+        return profileService.getAddress(userId);
+    }
+
     @GetMapping("/cards/{userId}")
     public List<Card> getCards(@PathVariable Integer userId) {
         return profileService.getCards(userId);

@@ -7,7 +7,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties({"user"})
 @Entity
 @Table(name = "favorite_movies")
 public class FavoriteMovie {
@@ -19,6 +21,11 @@ public class FavoriteMovie {
     @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @MapsId("movieId")
+    @JoinColumn(name = "movie_id")
+    private Movie movie;
 
     public FavoriteMovie() {
     }
@@ -42,5 +49,13 @@ public class FavoriteMovie {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Movie getMovie() {
+        return movie;
+    }
+
+    public void setMovie(Movie movie) {
+        this.movie = movie;
     }
 }
