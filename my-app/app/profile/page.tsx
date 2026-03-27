@@ -82,7 +82,15 @@ const Profile = () => {
 
     fetch(`http://localhost:8080/favorites/${userId}`)
       .then(res => res.json())
-      .then(data => setFavorites(data));
+      .then(data => {
+        setFavorites(data);
+
+        const favoriteIds = data
+          .map((f: any) => f.movie?.id)
+          .filter((id: any) => id !== undefined);
+
+        localStorage.setItem("favorites", JSON.stringify(favoriteIds));
+          });
 
   }, []);
 
@@ -127,6 +135,22 @@ const Profile = () => {
   }
 
     setMessage("Profile updated successfully.");
+  }
+
+  async function removeFavorite(movieId: number) {
+    const userId = user.userId;
+
+    await fetch(`http://localhost:8080/favorites/${userId}/${movieId}`, {
+      method: "DELETE"
+    });
+
+    setFavorites(prev => prev.filter(f => f.movie.id !== movieId));
+
+    const updatedIds = favorites
+      .filter(f => f.movie.id !== movieId)
+      .map(f => f.movie.id);
+
+    localStorage.setItem("favorites", JSON.stringify(updatedIds));
   }
 
   if (!user) {
@@ -260,6 +284,55 @@ const Profile = () => {
         {message && (
           <p style={{ marginTop: "12px", color: "#00cc66" }}>{message}</p>
         )}
+
+        <h3 style={favoritesTitle}>My Favorite Movies</h3>
+
+        {favorites.length === 0 && (
+          <p style={{ color: "#aaa" }}>No favorite movies yet.</p>
+        )}
+
+        <div style={favoritesContainer}>
+          {favorites.map((fav: any) => {
+            const movie = fav?.movie;
+            if (!movie || !movie.id) return null;
+
+            return (
+              <div key={movie.id} style={favoriteCard}>
+                <Link href={`/movie/${movie.id}`}>
+                  <img
+                    src={posterMap[movie.title] || "/images/default.jpg"}
+                    alt={movie.title}
+                    style={{
+                      width: "160px",
+                      height: "240px",
+                      borderRadius: "12px",
+                      cursor: "pointer",
+                    }}
+                  />
+                </Link>
+
+                <div style={{ marginTop: "8px" }}>
+                  {movie.title}
+                </div>
+                <button
+                onClick={() => removeFavorite(movie.id)}
+                style={{
+                  marginTop: "6px",
+                  background: "red",
+                  border: "none",
+                  color: "white",
+                  padding: "4px 8px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontSize: "12px"
+                }}
+              >
+                Remove
+                </button>
+              </div>
+            );
+          })}
+        </div>
       </section>
     </div>
   );
