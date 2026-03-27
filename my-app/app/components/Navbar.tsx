@@ -4,10 +4,13 @@ import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
+    const role = localStorage.getItem("role");
     setIsLoggedIn(!!userId);
+    setIsAdmin(role === "ADMIN");
   }, []);
 
   function handleLogout() {
@@ -53,6 +56,13 @@ export default function Navbar() {
             <Link href="/profile" style={{ color: "white" }}>
               Profile
             </Link>
+
+            {isAdmin && (
+              <Link href="/admin" style={{ color: "#FFCC00" }}>
+                Admin
+              </Link>
+            )}
+            
             <button
               onClick={handleLogout}
               style={{
