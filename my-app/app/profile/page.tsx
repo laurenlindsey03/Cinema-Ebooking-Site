@@ -20,6 +20,7 @@ const Profile = () => {
   const [user, setUser] = useState<any>(null);
   const [favorites, setFavorites] = useState<any[]>([]);
   const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -93,6 +94,14 @@ const Profile = () => {
 
     const userId = user.userId;
 
+    if (currentPassword || newPassword) {
+      if (currentPassword === newPassword) {
+        setIsError(true);
+        setMessage("New password cannot be the same as the current password.");
+        return;
+      }
+    }
+
     for (const card of cards) {
       if (card.encryptedCardNumber && card.encryptedCardNumber.trim() !== "") {
         await fetch(`http://localhost:8080/profile/cards/${userId}`, {
@@ -120,11 +129,16 @@ const Profile = () => {
     });
 
     if (!res.ok) {
-      const errorText = await res.text();
-      setMessage(errorText);
-      return;
+        setIsError(true);
+        try {
+          const errorData = await res.json();
+          setMessage(errorData.message || "Please provide the correct current password first.");
+        } catch (e) {
+          setMessage("Please check your current password.");
+        }
+        return; 
+      }
     }
-  }
 
     setMessage("Profile updated successfully.");
   }
@@ -258,7 +272,14 @@ const Profile = () => {
         </form>
 
         {message && (
-          <p style={{ marginTop: "12px", color: "#00cc66" }}>{message}</p>
+          <p style={{ 
+            marginTop: "12px", 
+            color: isError ? "#ff4444" : "#00cc66", 
+            textAlign: "center",
+            fontWeight: "bold"
+          }}>
+            {message}
+          </p>
         )}
       </section>
     </div>

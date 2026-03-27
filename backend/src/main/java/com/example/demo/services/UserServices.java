@@ -106,12 +106,12 @@ public class UserServices {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!hashEncoder.matches(oldPassword, user.getPasswordHash())) {
-            throw new RuntimeException("Current password is incorrect.");
+            throw new RuntimeException("Please provide the correct current password.");
         }
 
         // provide old password before setting new one
        if (hashEncoder.matches(newPassword, user.getPasswordHash())) {
-            throw new RuntimeException("New password must be different.");
+            throw new RuntimeException("Your new password must be different than your current password.");
         }
 
         user.setPasswordHash(hashEncoder.encode(newPassword));
