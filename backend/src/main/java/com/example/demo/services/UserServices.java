@@ -4,10 +4,13 @@ import com.example.demo.model.User;
 import com.example.demo.model.UserRole;
 import com.example.demo.model.UserStatus;
 import com.example.demo.repository.UserRepository;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional; // if DNE
 import java.util.UUID;
@@ -86,13 +89,13 @@ public class UserServices {
 
         //check if account is active
         if (!Boolean.TRUE.equals(user.getVerified()) || user.getUserStatus() != UserStatus.ACTIVE) {
-            throw new RuntimeException("Please verify your email before logging in.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Please verify your account first.");
         }
 
         // Validate password
         boolean passwordMatches = hashEncoder.matches(password, user.getPasswordHash());
         if (!passwordMatches) {
-            throw new RuntimeException("Invalid password.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password.");
         }
 
         // Successful login
