@@ -25,10 +25,17 @@ const Login = () => {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        setError(errorText || "Login failed");
+        
+        if (response.status === 403) {
+          setError("You must verify your account before logging in. Please check your email for a verification link.");
+        } else if (response.status === 401) {
+          setError("Invalid email or password. Please try again.");
+        }  else {
+          setError("Error.");
+        }
         return;
       }
+      
       const data = await response.json();
 
       console.log("LOGIN RESPONSE:", data);
