@@ -53,7 +53,7 @@ export default function MovieCarousel({ movies }: Props) {
       } else {
         const error = await response.text();
         console.log(error);
-        alert("Already in your favorites!.");
+        alert("Already in your favorites!");
       }
     } catch (err) {
       console.error(err);
