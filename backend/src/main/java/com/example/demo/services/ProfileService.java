@@ -17,7 +17,6 @@ import java.util.List;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
-import java.util.stream.Collectors;
 
 @Service
 public class ProfileService {
@@ -75,14 +74,27 @@ public class ProfileService {
             response.setBillingAddress(card.getBillingAddress());
             return response;
         }).toList();
-}
+    }
 
     public Card addCard(Integer userId, Card card) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (card.getEncryptedCardNumber() == null || card.getEncryptedCardNumber().trim().isEmpty()) {
+            return null; 
+        }
+
+        if (card.getExpirationDate() != null && card.getExpirationDate().isBefore(java.time.LocalDate.now())) {
+            throw new RuntimeException("Card expiration date must be in the future.");
+        }
+
+        String cardDigits = card.getEncryptedCardNumber().replaceAll("\\D", "");
+        if (cardDigits.length() != 16) {
+            throw new RuntimeException("A valid card number should be exactly 16 digits.");
+        }
+
         long count = cardRepository.countByUser(user);
-        if (count >= 3) {
-            throw new RuntimeException("User cannot havee more than 3 payment cards.");
+        if (card.getCardId() == null && count >= 3) {
+            throw new RuntimeException("User cannot have more than 3 payment cards.");
         }
 
         String cardNumber = card.getEncryptedCardNumber();
@@ -97,8 +109,6 @@ public class ProfileService {
 
         return savedCard;
     }
-
-    
 
     public UserPreference savePreferences(Integer userId, UserPreference incoming) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
