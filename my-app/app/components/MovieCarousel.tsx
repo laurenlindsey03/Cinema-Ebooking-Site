@@ -11,6 +11,14 @@ type Props = {
 export default function MovieCarousel({ movies }: Props) {
   const [current, setCurrent] = useState(0);
   const [userId, setUserId] = useState<number | null>(null);
+  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("favorites");
+    if (stored) {
+      setFavoriteIds(JSON.parse(stored));
+    }
+  }, []);
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
@@ -50,6 +58,10 @@ export default function MovieCarousel({ movies }: Props) {
 
       if (response.ok) {
         alert("Added to favorites!");
+
+        const updated = [...favoriteIds, movie.id];
+        setFavoriteIds(updated);
+        localStorage.setItem("favorites", JSON.stringify(updated));
       } else {
         const error = await response.text();
         console.log(error);
@@ -76,8 +88,17 @@ export default function MovieCarousel({ movies }: Props) {
       </div>
 
       {userId && (
-        <button onClick={addFavorite} style={favoriteButton}>
-          Add to Favorites
+        <button
+          onClick={addFavorite}
+          style={{
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            fontSize: "20px",
+            color: favoriteIds.includes(movie.id) ? "red" : "white"
+          }}
+        >
+          {favoriteIds.includes(movie.id) ? "❤️" : "🤍"}
         </button>
       )}
 
