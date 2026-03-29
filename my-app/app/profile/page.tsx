@@ -33,9 +33,9 @@ const Profile = () => {
   });
 
   const [cards, setCards] = useState([
-    { encryptedCardNumber: "", expirationDate: "", billingAddress: "" },
-    { encryptedCardNumber: "", expirationDate: "", billingAddress: "" },
-    { encryptedCardNumber: "", expirationDate: "", billingAddress: "" }
+    { cardNumber: "", expirationDate: "", billingAddress: "" },
+    { cardNumber: "", expirationDate: "", billingAddress: "" },
+    { cardNumber: "", expirationDate: "", billingAddress: "" }
   ]);
 
   useEffect(() => {
@@ -50,15 +50,15 @@ const Profile = () => {
       .then(res => res.json())
       .then(cardData => {
         const filled = [
-          { encryptedCardNumber: "", expirationDate: "", billingAddress: "" },
-          { encryptedCardNumber: "", expirationDate: "", billingAddress: "" },
-          { encryptedCardNumber: "", expirationDate: "", billingAddress: "" }
+          { cardNumber: "", expirationDate: "", billingAddress: "" },
+          { cardNumber: "", expirationDate: "", billingAddress: "" },
+          { cardNumber: "", expirationDate: "", billingAddress: "" }
         ];
 
         if (cardData && cardData.length > 0) {
           cardData.slice(0, 3).forEach((c: any, i: number) => {
             filled[i] = {
-              encryptedCardNumber: c.encryptedCardNumber || "",
+              cardNumber: c.cardNumber || "",
               expirationDate: c.expirationDate || "",
               billingAddress: c.billingAddress || ""
             };
@@ -111,11 +111,15 @@ const Profile = () => {
     }
 
     for (const card of cards) {
-      if (card.encryptedCardNumber && card.encryptedCardNumber.trim() !== "") {
+      if (card.cardNumber && card.cardNumber.trim() !== "" && !card.cardNumber.startsWith("****")) {
         await fetch(`http://localhost:8080/profile/cards/${userId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(card)
+          body: JSON.stringify({
+            encryptedCardNumber: card.cardNumber,
+            expirationDate: card.expirationDate,
+            billingAddress: card.billingAddress
+          })
         });
       }
     }
@@ -248,10 +252,10 @@ const Profile = () => {
             <div key={index}>
               <input style={inputStyle}
                 placeholder={`Card ${index + 1} Number`}
-                value={card.encryptedCardNumber}
+                value={card.cardNumber}
                 onChange={(e) => {
                   const updated = [...cards];
-                  updated[index].encryptedCardNumber = e.target.value;
+                  updated[index].cardNumber = e.target.value;
                   setCards(updated);
                 }}
               />

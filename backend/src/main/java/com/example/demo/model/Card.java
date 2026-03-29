@@ -28,6 +28,9 @@ public class Card {
     @Column(name = "billing_address")
     private String billingAddress;
 
+    @Column(name="last4")
+    private String last4;
+
     public Card() {
     }
 
@@ -69,6 +72,14 @@ public class Card {
 
     public void setBillingAddress(String billingAddress) { 
         this.billingAddress = billingAddress; 
+    }
+
+    public String getLast4() {
+        return last4;
+    }
+
+    public void setLast4(String last4) {
+        this.last4 = last4;
     }
 
 }

@@ -4,6 +4,7 @@ import com.example.demo.model.Address;
 import com.example.demo.model.Card;
 import com.example.demo.model.User;
 import com.example.demo.model.UserPreference;
+import com.example.demo.model.CardResponse;
 import com.example.demo.repository.AddressRepository;
 import com.example.demo.repository.CardRepository;
 import com.example.demo.repository.UserPreferenceRepository;
@@ -16,6 +17,7 @@ import java.util.List;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
+import java.util.stream.Collectors;
 
 @Service
 public class ProfileService {
@@ -60,9 +62,19 @@ public class ProfileService {
         return savedAddress;
     }
 
-    public List<Card> getCards(Integer userId) {
+    public List<CardResponse> getCards(Integer userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        return cardRepository.findByUser(user);
+        
+        List<Card> cards = cardRepository.findByUser(user);
+
+        return cards.stream().map(card -> {
+            CardResponse response = new CardResponse();
+            response.setCardId(card.getCardId());
+            response.setCardNumber("**** **** **** " + card.getLast4());
+            response.setExpirationDate(card.getExpirationDate());
+            response.setBillingAddress(card.getBillingAddress());
+            return response;
+        }).toList();
 }
 
     public Card addCard(Integer userId, Card card) {
@@ -73,6 +85,9 @@ public class ProfileService {
             throw new RuntimeException("User cannot havee more than 3 payment cards.");
         }
 
+        String cardNumber = card.getEncryptedCardNumber();
+        String last4 = cardNumber.substring(cardNumber.length() - 4);
+        card.setLast4(last4);
         String encrypted = encryptCardNumber(card.getEncryptedCardNumber());
         card.setEncryptedCardNumber(encrypted);
 
