@@ -2,6 +2,7 @@ package com.example.demo.repository;
 
 import com.example.demo.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
 import java.util.Optional; // if DNE
 
@@ -12,5 +13,8 @@ public interface UserRepository extends JpaRepository<User, Integer>{
     Optional<User> findByVerificationToken(String verificationToken);
 
     boolean existsByEmail(String email);
+
+    // get promotion name column from DB
+    List<User> findByReceivePromotionsTrue();
 
 }

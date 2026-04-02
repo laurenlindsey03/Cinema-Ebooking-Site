@@ -4,5 +4,5 @@ import com.example.demo.model.Promotion;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PromotionRepository extends JpaRepository<Promotion, Integer> {
-    boolean existsByPromoCode(String code);
+    boolean existsByCode(String code);
 }
