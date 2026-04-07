@@ -16,7 +16,11 @@ public class Showtime {
     private Movie movie;
 
     private LocalDateTime startTime;
-    private String hallName;
+    private LocalDateTime endTime;
+    
+    @ManyToOne
+    @JoinColumn(name = "showroom_id")
+    private Showroom showroom;
 
     public Showtime() {}
 
@@ -39,16 +43,25 @@ public class Showtime {
     public LocalDateTime getStartTime() { 
         return startTime; 
     }
+
+    public LocalDateTime getEndTime() { 
+        return endTime; 
+    }
     
     public void setStartTime(LocalDateTime startTime) { 
         this.startTime = startTime; 
     }
 
-    public String getHallName() { 
-        return hallName; 
+    public void setEndTime(LocalDateTime endTime) { 
+        this.endTime = endTime; 
+    }
+
+    public Showroom getShowroom() { 
+        return showroom; 
+    }
+
+    public void setShowroom(Showroom showroom) { 
+        this.showroom = showroom; 
     }
     
-    public void setHallName(String hallName) { 
-        this.hallName = hallName; 
-    }
 }
