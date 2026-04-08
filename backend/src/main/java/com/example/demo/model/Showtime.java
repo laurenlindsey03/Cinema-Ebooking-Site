@@ -11,11 +11,13 @@ public class Showtime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "movie_id")
-    private Movie movie;
+    @Column(name = "movie_id", nullable = false)
+    private Long movieId;
 
+    @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
+
+    @Column(name = "hall_name", nullable = false)
     private String hallName;
 
     public Showtime() {}
@@ -28,12 +30,12 @@ public class Showtime {
         this.id = id; 
     }
 
-    public Movie getMovie() {
-         return movie; 
+    public Long getMovieId() {
+         return movieId; 
     }
 
-    public void setMovie(Movie movie) { 
-        this.movie = movie; 
+    public void setMovieId(Long movieId) { 
+        this.movieId = movieId; 
     }
 
     public LocalDateTime getStartTime() { 
