@@ -77,7 +77,7 @@ public class AdminServices {
             }
 
             Showtime showtime = new Showtime();
-            showtime.setMovie(movie);
+            showtime.setMovieId(movieId);
             showtime.setShowroom(showroom);
             showtime.setStartTime(startTime);
             showtime.setEndTime(endTime);

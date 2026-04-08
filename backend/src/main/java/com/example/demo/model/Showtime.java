@@ -67,4 +67,11 @@ public class Showtime {
         this.showroom = showroom; 
     }
     
+    public String getHallName() {
+        return hallName;
+    }
+
+    public void setHallName(String hallName) {
+        this.hallName = hallName;
+    }
 }
