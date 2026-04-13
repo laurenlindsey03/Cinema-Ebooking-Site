@@ -54,6 +54,9 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "receive_promotions", nullable = false, columnDefinition = "boolean default false")
+    private Boolean receivePromotions = false;
+
     public User() {
     }
     
@@ -144,4 +147,13 @@ public class User {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public Boolean getReceivePromotions() {
+        return receivePromotions;
+    }
+
+    public void setReceivePromotions(Boolean receivePromotions) {
+        this.receivePromotions = receivePromotions;
+    }
+    
 }

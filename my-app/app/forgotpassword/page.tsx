@@ -13,7 +13,7 @@ const ForgotPassword = () => {
     const email = formData.get("email") as string;
 
     try {
-      const response = await fetch("http://localhost:8080/api/auth/forgot-password", {
+      const response = await fetch("http://localhost:8080/users/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -22,7 +22,7 @@ const ForgotPassword = () => {
       if (response.ok) {
         setMessage("Password reset link sent to your email.");
       } else {
-        setMessage("Unable to process request.");
+        setMessage(`Error: ${response.status}`);
       }
 
     } catch (error) {

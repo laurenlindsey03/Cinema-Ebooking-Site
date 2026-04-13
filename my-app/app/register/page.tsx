@@ -8,6 +8,7 @@ const Register = () => {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [receivePromotions, setReceivePromotions] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
@@ -54,6 +55,8 @@ const Register = () => {
           state,
           zip,
           cardNumber,
+
+          receivePromotions
         }),
       });
 
@@ -128,6 +131,24 @@ const Register = () => {
 
           <div style={inputGroup}>
             <input name="cardNumber" placeholder="Card Number" style={inputStyle} />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', gap: '10px', marginTop: '15px' }}>
+            <input 
+              type="checkbox" 
+              id="promoCheckbox"
+              checked={receivePromotions}
+              onChange={(e) => setReceivePromotions(e.target.checked)}
+              style={{
+                width: "18px",
+                height: "18px",
+                cursor: "pointer",
+                accentColor: "#FFCC00" 
+              }}
+            />
+            <label htmlFor="promoCheckbox" style={{ color: "white", fontSize: "14px", cursor: "pointer" }}>
+              Sign up for promotional emails!
+            </label>
           </div>
 
           <button type="submit" style={buttonStyle}>

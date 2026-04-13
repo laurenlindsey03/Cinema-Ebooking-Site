@@ -4,10 +4,13 @@ import com.example.demo.model.User;
 import com.example.demo.model.UserRole;
 import com.example.demo.model.UserStatus;
 import com.example.demo.repository.UserRepository;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional; // if DNE
 import java.util.UUID;
@@ -50,7 +53,7 @@ public class UserServices {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(user.getEmail());
         message.setSubject("Verify your Cinema E-Booking account");
-        message.setText("click this link to verify your account: " + verifyLink);
+        message.setText("Click this link to verify your account: " + verifyLink);
 
         mailSender.send(message);
     }
@@ -63,7 +66,7 @@ public class UserServices {
         user.setVerificationToken(null);
         userRepository.save(user);
 
-        return "Account verified successfully";
+        return "Account verified successfully.";
       
     }
 
@@ -86,13 +89,13 @@ public class UserServices {
 
         //check if account is active
         if (!Boolean.TRUE.equals(user.getVerified()) || user.getUserStatus() != UserStatus.ACTIVE) {
-            throw new RuntimeException("Please verify your email before logging in.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Please verify your account first.");
         }
 
         // Validate password
         boolean passwordMatches = hashEncoder.matches(password, user.getPasswordHash());
         if (!passwordMatches) {
-            throw new RuntimeException("Invalid password.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password.");
         }
 
         // Successful login
@@ -106,12 +109,12 @@ public class UserServices {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!hashEncoder.matches(oldPassword, user.getPasswordHash())) {
-            throw new RuntimeException("Current password is incorrect.");
+            throw new RuntimeException("Please provide the correct current password.");
         }
 
         // provide old password before setting new one
        if (hashEncoder.matches(newPassword, user.getPasswordHash())) {
-            throw new RuntimeException("New password must be different.");
+            throw new RuntimeException("Your new password must be different than your current password.");
         }
 
         user.setPasswordHash(hashEncoder.encode(newPassword));
@@ -119,7 +122,7 @@ public class UserServices {
 
         SimpleMailMessage emailMessage = new SimpleMailMessage();
         emailMessage.setTo(user.getEmail());
-        emailMessage.setSubject("CES Password Change");
+        emailMessage.setSubject("Cinema E-Booking Password Change");
         emailMessage.setText("Your password has been changed.");
         mailSender.send(emailMessage);
 

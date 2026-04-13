@@ -16,10 +16,18 @@ const posterMap: { [key: string]: string } = {
   "Wuthering Heights": "/images/WutheringHeights.jpeg",
 };
 
+type CardData = {
+  cardId: number | null;
+  cardNumber: string;
+  expirationDate: string;
+  billingAddress: string;
+};
+
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
   const [favorites, setFavorites] = useState<any[]>([]);
   const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -32,9 +40,9 @@ const Profile = () => {
   });
 
   const [cards, setCards] = useState([
-    { encryptedCardNumber: "", expirationDate: "", billingAddress: "" },
-    { encryptedCardNumber: "", expirationDate: "", billingAddress: "" },
-    { encryptedCardNumber: "", expirationDate: "", billingAddress: "" }
+    { cardId: null, cardNumber: "", expirationDate: "", billingAddress: "" },
+    { cardId: null, cardNumber: "", expirationDate: "", billingAddress: "" },
+    { cardId: null, cardNumber: "", expirationDate: "", billingAddress: "" }
   ]);
 
   useEffect(() => {
@@ -49,15 +57,16 @@ const Profile = () => {
       .then(res => res.json())
       .then(cardData => {
         const filled = [
-          { encryptedCardNumber: "", expirationDate: "", billingAddress: "" },
-          { encryptedCardNumber: "", expirationDate: "", billingAddress: "" },
-          { encryptedCardNumber: "", expirationDate: "", billingAddress: "" }
+          { cardId: null, cardNumber: "", expirationDate: "", billingAddress: "" },
+          { cardId: null, cardNumber: "", expirationDate: "", billingAddress: "" },
+          { cardId: null, cardNumber: "", expirationDate: "", billingAddress: "" }
         ];
 
         if (cardData && cardData.length > 0) {
           cardData.slice(0, 3).forEach((c: any, i: number) => {
             filled[i] = {
-              encryptedCardNumber: c.encryptedCardNumber || "",
+              cardId: c.cardId,
+              cardNumber: c.cardNumber || "",
               expirationDate: c.expirationDate || "",
               billingAddress: c.billingAddress || ""
             };
@@ -101,12 +110,71 @@ const Profile = () => {
 
     const userId = user.userId;
 
+    if (currentPassword || newPassword) {
+      if (currentPassword === newPassword) {
+        setIsError(true);
+        setMessage("New password cannot be the same as the current password.");
+        return;
+      }
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     for (const card of cards) {
-      if (card.encryptedCardNumber && card.encryptedCardNumber.trim() !== "") {
+      if (card.cardNumber && card.cardNumber.trim() !== "") {
+
+        const cardDigits = card.cardNumber.replace(/\D/g, "");
+        
+        if (!card.cardNumber.startsWith("****") && cardDigits.length !== 16) {
+          setIsError(true);
+          setMessage(`A valid card number should be exactly 16 digits.`);
+          return; 
+        }
+        
+        const expirationDate = new Date(card.expirationDate);
+        
+        if (!isNaN(expirationDate.getTime()) && expirationDate <= today) {
+          setIsError(true);
+          setMessage('Card expiration date must be in the future.');
+          return; 
+        }
+      }
+    }
+
+    for (const card of cards) {
+      if (card.cardNumber && card.cardNumber.trim() !== "" && !card.cardNumber.startsWith("****")) {
+
+        const cardDigits = card.cardNumber.replace(/\D/g, "");
+        
+        if (cardDigits.length !== 16) {
+          setIsError(true);
+          setMessage("A valid card number should be exactly 16 digits.");
+          return; 
+        }
+
+        const expirationDate = new Date(card.expirationDate);
+        if (isNaN(expirationDate.getTime())) {
+          setIsError(true);
+          setMessage("Enter a valid expiration date (YYYY-MM-DD).");
+          return;
+        }
+
+        if (expirationDate <= today) {
+          setIsError(true);
+          setMessage("Card expiration date must be in the future.");
+          return;
+        }
+
         await fetch(`http://localhost:8080/profile/cards/${userId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(card)
+          body: JSON.stringify({
+            cardId: card.cardId,
+            encryptedCardNumber: card.cardNumber,
+            expirationDate: card.expirationDate,
+            billingAddress: card.billingAddress
+          })
         });
       }
     }
@@ -128,11 +196,16 @@ const Profile = () => {
     });
 
     if (!res.ok) {
-      const errorText = await res.text();
-      setMessage(errorText);
-      return;
+        setIsError(true);
+        try {
+          const errorData = await res.json();
+          setMessage(errorData.message || "Please provide the correct current password first.");
+        } catch (e) {
+          setMessage("Please check your current password.");
+        }
+        return; 
+      }
     }
-  }
 
     setMessage("Profile updated successfully.");
   }
@@ -234,10 +307,10 @@ const Profile = () => {
             <div key={index}>
               <input style={inputStyle}
                 placeholder={`Card ${index + 1} Number`}
-                value={card.encryptedCardNumber}
+                value={card.cardNumber}
                 onChange={(e) => {
                   const updated = [...cards];
-                  updated[index].encryptedCardNumber = e.target.value;
+                  updated[index].cardNumber = e.target.value;
                   setCards(updated);
                 }}
               />
@@ -282,7 +355,14 @@ const Profile = () => {
         </form>
 
         {message && (
-          <p style={{ marginTop: "12px", color: "#00cc66" }}>{message}</p>
+          <p style={{ 
+            marginTop: "12px", 
+            color: isError ? "#ff4444" : "#00cc66", 
+            textAlign: "center",
+            fontWeight: "bold"
+          }}>
+            {message}
+          </p>
         )}
 
         <h3 style={favoritesTitle}>My Favorite Movies</h3>

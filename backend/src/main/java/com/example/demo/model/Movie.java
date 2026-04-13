@@ -14,15 +14,25 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable=false)
     private String title;
 
     @Column(columnDefinition = "TEXT")
     private String synopsis;
 
+    @Column(name = "mpaa_rating", nullable = false)
     private String mpaaRating;
+
+    @Column(name = "status")
     private String status;
+
+    @Column(name = "release_date")
     private LocalDate releaseDate;
+
+    @Column(name = "poster_url")
     private String posterUrl;
+
+    @Column(name = "trailer_url")
     private String trailerUrl;
 
     @ElementCollection

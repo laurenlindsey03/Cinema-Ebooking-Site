@@ -11,12 +11,19 @@ public class Showtime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "movie_id")
-    private Movie movie;
+    @Column(name = "movie_id", nullable = false)
+    private Long movieId;
 
+    @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
+
+    @Column(name = "hall_name", nullable = false)
     private String hallName;
+    private LocalDateTime endTime;
+    
+    @ManyToOne
+    @JoinColumn(name = "showroom_id")
+    private Showroom showroom;
 
     public Showtime() {}
 
@@ -28,27 +35,43 @@ public class Showtime {
         this.id = id; 
     }
 
-    public Movie getMovie() {
-         return movie; 
+    public Long getMovieId() {
+         return movieId; 
     }
 
-    public void setMovie(Movie movie) { 
-        this.movie = movie; 
+    public void setMovieId(Long movieId) { 
+        this.movieId = movieId; 
     }
 
     public LocalDateTime getStartTime() { 
         return startTime; 
+    }
+
+    public LocalDateTime getEndTime() { 
+        return endTime; 
     }
     
     public void setStartTime(LocalDateTime startTime) { 
         this.startTime = startTime; 
     }
 
-    public String getHallName() { 
-        return hallName; 
+    public void setEndTime(LocalDateTime endTime) { 
+        this.endTime = endTime; 
+    }
+
+    public Showroom getShowroom() { 
+        return showroom; 
+    }
+
+    public void setShowroom(Showroom showroom) { 
+        this.showroom = showroom; 
     }
     
-    public void setHallName(String hallName) { 
-        this.hallName = hallName; 
+    public String getHallName() {
+        return hallName;
+    }
+
+    public void setHallName(String hallName) {
+        this.hallName = hallName;
     }
 }
