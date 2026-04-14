@@ -5,6 +5,14 @@ import { useEffect, useState } from "react";
 const MOVIE_API = "http://localhost:8080/api/movies";
 const ADMIN_SHOWTIME_API = "http://localhost:8080/admin/showtimes";
 
+const TIME_OPTIONS = [
+  { label: "3:00 PM", value: "15:00:00" },
+  { label: "5:00 PM", value: "17:00:00" },
+  { label: "8:00 PM", value: "20:00:00" }
+];
+
+const HALL_OPTIONS = ["Hall 1", "Hall 2", "Hall 3"];
+
 export default function AdminShowtimes() {
   const [movies, setMovies] = useState<any[]>([]);
   const [selectedMovie, setSelectedMovie] = useState<number | null>(null);
@@ -33,14 +41,14 @@ export default function AdminShowtimes() {
         body: JSON.stringify({
           movieId: selectedMovie,
           date: date,
-          time: time + ":00",   // ensure HH:mm:ss
+          time: time,
           hallName: hallName
         })
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        setMessage(errorText);
+        setMessage("That hall already has a movie scheduled at that time.");
         return;
       }
 
@@ -57,9 +65,10 @@ export default function AdminShowtimes() {
 
   return (
     <div style={pageStyle}>
-      <section style ={cardStyle}>
+      <section style={cardStyle}>
         <h2 style={titleStyle}>Add Showtime</h2>
 
+        {/* Movie Dropdown */}
         <label>Movie</label>
         <select
           value={selectedMovie ?? ""}
@@ -74,6 +83,7 @@ export default function AdminShowtimes() {
           ))}
         </select>
 
+        {/* Date */}
         <label>Date</label>
         <input
           type="date"
@@ -82,21 +92,35 @@ export default function AdminShowtimes() {
           style={inputStyle}
         />
 
+        {/* Time Dropdown */}
         <label>Time</label>
-        <input
-          type="time"
+        <select
           value={time}
           onChange={(e) => setTime(e.target.value)}
           style={inputStyle}
-        />
+        >
+          <option value="">Select Time</option>
+          {TIME_OPTIONS.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
 
-        <label>Hall Name</label>
-        <input
-          type="text"
+        {/* Hall Dropdown */}
+        <label>Hall</label>
+        <select
           value={hallName}
           onChange={(e) => setHallName(e.target.value)}
           style={inputStyle}
-        />
+        >
+          <option value="">Select Hall</option>
+          {HALL_OPTIONS.map(hall => (
+            <option key={hall} value={hall}>
+              {hall}
+            </option>
+          ))}
+        </select>
 
         <button style={buttonStyle} onClick={addShowtime}>
           Save Showtime
@@ -112,7 +136,7 @@ export default function AdminShowtimes() {
   );
 }
 
-const pageStyle = {
+const pageStyle: React.CSSProperties = {
   minHeight: "85vh",
   background: "black",
   display: "flex",
@@ -136,7 +160,7 @@ const titleStyle: React.CSSProperties = {
   textAlign: "center"
 };
 
-const inputStyle = {
+const inputStyle: React.CSSProperties = {
   padding: 10,
   borderRadius: 6,
   border: "1px solid #333",
@@ -144,7 +168,7 @@ const inputStyle = {
   color: "white"
 };
 
-const buttonStyle = {
+const buttonStyle: React.CSSProperties = {
   marginTop: 10,
   padding: 12,
   background: "#FFCC00",

@@ -62,7 +62,7 @@ export default function Home() {
 
 
   const showingNow = results.filter(
-    movie => movie.status === "NOW_PLAYING"
+    movie => movie.status === "NOW_SHOWING" || "NOW_PLAYING"
   );
 
   const comingSoon = results.filter(

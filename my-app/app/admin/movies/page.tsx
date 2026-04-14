@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 const MOVIE_API = "http://localhost:8080/api/movies";
+const ADMIN_MOVIE_API = "http://localhost:8080/admin/movies";
 
 type Movie = {
   id?: number;
@@ -80,7 +81,7 @@ export default function ManageMovies() {
 
   const handleAddMovie = async () => {
     try {
-      const response = await fetch(MOVIE_API, {
+      const response = await fetch(ADMIN_MOVIE_API, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

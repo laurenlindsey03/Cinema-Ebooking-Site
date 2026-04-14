@@ -5,6 +5,48 @@ import { useState } from "react";
 export default function ManagePromotions() {
   const [code, setCode] = useState("");
   const [discount, setDiscount] = useState("");
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const [message, setMessage] = useState("");
+
+  const PROMO_API = "http://localhost:8080/admin/promotions";
+
+  async function addPromotion() {
+    if (!code || !discount || !start || !end) {
+      setMessage("All fields are required.");
+      return;
+    }
+
+    try {
+      const response = await fetch(PROMO_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: code,
+          discount: parseFloat(discount) / 100, 
+          start: start,
+          end: end
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setMessage(data.message || "Error creating promotion.");
+        return;
+      }
+
+      setMessage("Promotion created successfully!");
+      setCode("");
+      setDiscount("");
+      setStart("");
+      setEnd("");
+
+    } catch (err) {
+      console.error(err);
+      setMessage("Server error.");
+    }
+  }
 
   const inputStyle: React.CSSProperties = {
     padding: "10px",
@@ -12,14 +54,15 @@ export default function ManagePromotions() {
     border: "1px solid #333",
     background: "#222",
     color: "white",
-    width: "100%"
+    width: "100%",
+    marginTop: 6
   };
 
   return (
-    <div>
-      <h1 style={{ color: "#FFCC00" }}>Manage Promotions</h1>
+    <div style={pageStyle}>
+      <div style={cardStyle}>
+        <h1 style={titleStyle}>Manage Promotions</h1>
 
-      <div style={{ marginTop: "30px", maxWidth: "400px" }}>
         <label>Promo Code</label>
         <input
           style={inputStyle}
@@ -27,28 +70,76 @@ export default function ManagePromotions() {
           onChange={(e) => setCode(e.target.value)}
         />
 
-        <label style={{ marginTop: "20px", display: "block" }}>
-          Discount %
-        </label>
+        <label>Discount (%)</label>
         <input
+          type="number"
           style={inputStyle}
           value={discount}
           onChange={(e) => setDiscount(e.target.value)}
         />
 
-        <button
-          style={{
-            background: "#FFCC00",
-            color: "black",
-            padding: "12px",
-            border: "none",
-            borderRadius: "8px",
-            marginTop: "20px"
-          }}
-        >
+        <label>Start Date</label>
+        <input
+          type="date"
+          style={inputStyle}
+          value={start}
+          onChange={(e) => setStart(e.target.value)}
+        />
+
+        <label>End Date</label>
+        <input
+          type="date"
+          style={inputStyle}
+          value={end}
+          onChange={(e) => setEnd(e.target.value)}
+        />
+
+        <button style={buttonStyle} onClick={addPromotion}>
           Add Promotion
         </button>
+
+        {message && (
+          <p style={{ marginTop: 15, color: "#FFCC00" }}>
+            {message}
+          </p>
+        )}
       </div>
     </div>
   );
 }
+
+const pageStyle: React.CSSProperties = {
+  minHeight: "85vh",
+  background: "black",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center"
+};
+
+const cardStyle: React.CSSProperties = {
+  background: "#111",
+  padding: 40,
+  borderRadius: 16,
+  width: 450,
+  color: "white",
+  display: "flex",
+  flexDirection: "column",
+  gap: 15
+};
+
+const titleStyle: React.CSSProperties = {
+  color: "#FFCC00",
+  textAlign: "center",
+  marginBottom: 10
+};
+
+const buttonStyle: React.CSSProperties = {
+  background: "#FFCC00",
+  color: "black",
+  padding: "12px",
+  border: "none",
+  borderRadius: "8px",
+  marginTop: "10px",
+  fontWeight: "bold",
+  cursor: "pointer"
+};

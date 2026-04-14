@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Movie } from "../types/Movie";
 
@@ -27,20 +27,13 @@ export default function MovieCarousel({ movies }: Props) {
     }
   }, []);
 
-  const posterMap: { [key: string]: string } = {
-    "Crime 101": "/images/Crime101.jpeg",
-    "GOAT": "/images/Goat.jpg",
-    "I Can Only Imagine 2": "/images/ICanOnlyImagine2.jpg",
-    "Peaky Blinders: The Immortal Man": "/images/PeakyBlinders.jpeg",
-    "Project Hail Mary": "/images/ProjectHailMary.jpeg",
-    "Reminders of Him": "/images/RemindersOfHim.jpeg",
-    "Send Help": "/images/SendHelp.jpeg",
-    "Solo Mio": "/images/SoloMia.jpg",
-    "The Bride!": "/images/TheBride!.jpeg",
-    "Wuthering Heights": "/images/WutheringHeights.jpeg",
-  };
-
-  if (movies.length === 0) return <div>No movies available</div>;
+  if (!movies || movies.length === 0) {
+    return (
+      <div style={{ color: "#aaa", textAlign: "center" }}>
+        No movies available
+      </div>
+    );
+  }
 
   const movie = movies[current];
 
@@ -57,15 +50,11 @@ export default function MovieCarousel({ movies }: Props) {
       );
 
       if (response.ok) {
-        alert("Added to favorites!");
-
-        const updated = [...favoriteIds, movie.id];
+        const updated = [...favoriteIds, movie.id!];
         setFavoriteIds(updated);
         localStorage.setItem("favorites", JSON.stringify(updated));
       } else {
-        const error = await response.text();
-        console.log(error);
-        alert("Already in your favorites!");
+        alert("Already in favorites.");
       }
     } catch (err) {
       console.error(err);
@@ -77,13 +66,13 @@ export default function MovieCarousel({ movies }: Props) {
     <div style={containerStyle}>
       <Link href={`/movie/${movie.id}`}>
         <img
-          src={posterMap[movie.title] || "/images/default.jpg"}
+          src={movie.posterUrl || "/images/default.jpg"}
           alt={movie.title}
           style={imageStyle}
         />
       </Link>
 
-      <div style={{ fontWeight: 600, fontSize: 18, color: "white" }}>
+      <div style={titleStyle}>
         {movie.title}
       </div>
 
@@ -94,15 +83,15 @@ export default function MovieCarousel({ movies }: Props) {
             background: "transparent",
             border: "none",
             cursor: "pointer",
-            fontSize: "20px",
-            color: favoriteIds.includes(movie.id) ? "red" : "white"
+            fontSize: "22px",
+            color: favoriteIds.includes(movie.id!) ? "red" : "white"
           }}
         >
-          {favoriteIds.includes(movie.id) ? "❤️" : "🤍"}
+          {favoriteIds.includes(movie.id!) ? "❤️" : "🤍"}
         </button>
       )}
 
-      <div>
+      <div style={{ marginTop: 15 }}>
         <button
           onClick={() =>
             setCurrent(current === 0 ? movies.length - 1 : current - 1)
@@ -122,7 +111,7 @@ export default function MovieCarousel({ movies }: Props) {
         </button>
       </div>
 
-      <div style={{ color: "#aaa" }}>
+      <div style={{ color: "#888", marginTop: 10 }}>
         {current + 1} / {movies.length}
       </div>
     </div>
@@ -140,8 +129,17 @@ const containerStyle: React.CSSProperties = {
 const imageStyle: React.CSSProperties = {
   width: "300px",
   height: "450px",
-  borderRadius: 10,
+  borderRadius: 12,
+  objectFit: "cover",
   cursor: "pointer",
+  boxShadow: "0 8px 25px rgba(0,0,0,0.5)"
+};
+
+const titleStyle: React.CSSProperties = {
+  fontWeight: 700,
+  fontSize: 20,
+  color: "white",
+  textAlign: "center"
 };
 
 const navButton: React.CSSProperties = {
@@ -152,15 +150,4 @@ const navButton: React.CSSProperties = {
   border: "none",
   cursor: "pointer",
   margin: "0 8px",
-};
-
-const favoriteButton: React.CSSProperties = {
-  background: "#FFCC00",
-  color: "black",
-  padding: "6px 14px",
-  borderRadius: "20px",
-  border: "none",
-  fontSize: "13px",
-  fontStyle: "italic",
-  cursor: "pointer",
 };
