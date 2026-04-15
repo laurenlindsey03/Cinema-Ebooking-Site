@@ -34,19 +34,6 @@ export default function MovieDetails() {
     return <p>Movie not found</p>;
   }
 
-  const posterMap: { [key: string]: string } = {
-    "Crime 101": "/images/Crime101.jpeg",
-    "GOAT": "/images/Goat.jpg",
-    "I Can Only Imagine 2": "/images/ICanOnlyImagine2.jpg",
-    "Peaky Blinders: The Immortal Man": "/images/PeakyBlinders.jpeg",
-    "Project Hail Mary": "/images/ProjectHailMary.jpeg",
-    "Reminders of Him": "/images/RemindersOfHim.jpeg",
-    "Send Help": "/images/SendHelp.jpeg",
-    "Solo Mio": "/images/SoloMia.jpg",
-    "The Bride!": "/images/TheBride!.jpeg",
-    "Wuthering Heights": "/images/WutheringHeights.jpeg",
-  };
-
   return (
     <div style={{ padding: "20px" }}>
       
@@ -59,8 +46,12 @@ export default function MovieDetails() {
 
 
       <img
-          src={posterMap[movie.title] || "/images/WutheringHeights.jpg"}
+          src={movie.posterUrl || "/images/WutheringHeights.jpeg"}
           alt={movie.title}
+          onError={(e) => {
+            console.log("Image failed to load:", movie.posterUrl);
+            e.currentTarget.src = "/images/WutheringHeights.jpeg";
+          }}
           style={{
             width: "300px",
             height: "450px",
@@ -96,6 +87,9 @@ export default function MovieDetails() {
           hour: "numeric",
           minute: "2-digit"
         });
+
+        console.log("movie object:", movie);
+        console.log("posterUrl:", movie.posterUrl);
 
         return (
           <div key={show.id} style={{ marginBottom: "10px" }}>

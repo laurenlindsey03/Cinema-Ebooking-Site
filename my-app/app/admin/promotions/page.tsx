@@ -23,7 +23,7 @@ export default function ManagePromotions() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: code,
-          discount: parseFloat(discount) / 100, 
+          discount: parseInt(discount, 10), 
           start: start,
           end: end
         })

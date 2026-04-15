@@ -40,8 +40,8 @@ public class PromotionController {
             return ResponseEntity.badRequest().body(Map.of("message", "Enter a promo code that is not already in use."));
         }
 
-        if (promotion.getDiscount() == null || promotion.getDiscount() <= 0 || promotion.getDiscount() > 1) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Discount must be between 0.0 and 1.0 (0 to 100%)."));
+        if (promotion.getDiscount() == null || promotion.getDiscount() <= 0 || promotion.getDiscount() > 100) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Discount must be between 0 and 100%"));
         }
 
         if (promotion.getStart() == null || promotion.getEnd() == null) {
