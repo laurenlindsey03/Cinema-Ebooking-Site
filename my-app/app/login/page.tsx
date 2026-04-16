@@ -49,8 +49,14 @@ const Login = () => {
 
       localStorage.setItem("userId", id.toString());
       localStorage.setItem("role", data.role);
+      localStorage.setItem("userEmail", data.email);
+      const redirect = new URLSearchParams(window.location.search).get("redirect");
 
-      window.location.href = data.role === "ADMIN" ? "/admin" : "/";
+      if (redirect) {
+        window.location.href = redirect;
+      } else {
+        window.location.href = data.role === "ADMIN" ? "/admin" : "/";
+      }
 
     } catch (e) {
       console.error(e);
