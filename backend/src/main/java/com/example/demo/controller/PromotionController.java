@@ -53,7 +53,7 @@ public class PromotionController {
 
         Promotion savedPromo = promotionRepository.save(promotion);
 
-        List<User> subscribedUsers = userRepository.findByReceivePromotionsTrue();
+        List<User> subscribedUsers = userRepository.findByPromotionsEnabledTrue();
 
         String subject = "Cinema E-Booking Promotion: " + savedPromo.getDiscount() + "% off!";
         String body = "Use promo code " + savedPromo.getCode() + " to get " + 
