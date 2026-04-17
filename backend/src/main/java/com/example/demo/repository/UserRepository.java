@@ -15,6 +15,6 @@ public interface UserRepository extends JpaRepository<User, Integer>{
     boolean existsByEmail(String email);
 
     // get promotion name column from DB
-    List<User> findByReceivePromotionsTrue();
+    List<User> findByPromotionsEnabledTrue();
 
 }

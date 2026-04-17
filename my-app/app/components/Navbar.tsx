@@ -16,6 +16,7 @@ export default function Navbar() {
   function handleLogout() {
     localStorage.removeItem("userId");
     localStorage.removeItem("role");
+    localStorage.removeItem("userEmail")
     window.location.href = "/";
   }
 
