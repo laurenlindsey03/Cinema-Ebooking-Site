@@ -42,6 +42,7 @@ export default function Checkout() {
       return;
     }
 
+    localStorage.setItem("checkoutUserId", booking.userId);
     localStorage.setItem("checkoutEmail", email);
     router.push("/payment");
   }
