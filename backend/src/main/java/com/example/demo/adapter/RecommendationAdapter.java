@@ -4,6 +4,7 @@ import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.services.AiService;
 import org.springframework.stereotype.Component;
+import com.example.demo.model.FavoriteMovie;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,18 +23,28 @@ public class RecommendationAdapter implements RecommendationTarget {
     @Override
     public List<String> getRecommendations(Integer userId) {
 
-        String userPreferences = "popular trending movies";
+       String prompt = "Suggest 3 popular trending movies. Reply ONLY with a comma-separated list of titles.";
 
-        User user = userRepository.findById(userId).orElse(null);
-        
-        if (user != null && user.getUserPreference() != null) {
-            String savedGenres = user.getUserPreference().getFavoriteGenres();
-            if (savedGenres != null && !savedGenres.trim().isEmpty()) {
-                userPreferences = savedGenres; 
+       User user = userRepository.findById(userId).orElse(null);
+
+       if (user != null) {
+            if (user.getFavoriteMovies() != null && !user.getFavoriteMovies().isEmpty()) {
+
+                List<String> favoriteMovies = new ArrayList<>();
+
+                for (FavoriteMovie movie : user.getFavoriteMovies()) {
+                    if (movie.getMovie() != null && movie.getMovie().getTitle() != null) {
+                        favoriteMovies.add(movie.getMovie().getTitle());
+                    }
+                }
+
+                if (!favoriteMovies.isEmpty()) {
+                    String favoritedList = String.join(", ", favoriteMovies);
+                    prompt = "Suggest 3 movies similar to these: " + favoritedList + 
+                             ". Reply ONLY with a comma-separated list of titles. Do not include the original movies in your response.";
+                }
             }
-        }
-
-        String prompt = "Suggest 3 movies for a user who loves " + userPreferences + ".";
+       }
 
         String aiResponse = geminiApiService.fetchGeminiResponse(prompt);
 
