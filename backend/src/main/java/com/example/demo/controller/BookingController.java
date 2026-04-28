@@ -1,9 +1,13 @@
 package com.example.demo.controller;
 
 import com.example.demo.facade.CheckoutFacade;
+import com.example.demo.model.Booking;
 import com.example.demo.model.Showtime;
+import com.example.demo.model.User;
+import com.example.demo.repository.BookingRepository;
 import com.example.demo.services.SeatService;
 import com.example.demo.repository.ShowtimeRepository;
+import com.example.demo.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,11 +23,15 @@ public class BookingController {
     private final CheckoutFacade checkoutFacade;
     private final SeatService seatService;
     private final ShowtimeRepository showtimeRepository;
+    private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
 
-    public BookingController(CheckoutFacade checkoutFacade, SeatService seatService, ShowtimeRepository showtimeRepository) {
+    public BookingController(CheckoutFacade checkoutFacade, SeatService seatService, ShowtimeRepository showtimeRepository, BookingRepository bookingRepository, UserRepository userRepository) {
         this.checkoutFacade = checkoutFacade;
         this.seatService = seatService;
         this.showtimeRepository = showtimeRepository;
+        this.bookingRepository = bookingRepository;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/checkout")
@@ -53,5 +61,17 @@ public class BookingController {
         response.put("message", "Booking cancelled successfully");
         
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/history/{userId}")
+    public ResponseEntity<?> getOrderHistory(@PathVariable Integer userId) {
+        User user = userRepository.findById(userId).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.badRequest().body("User  not found");
+        }
+
+        List<Booking> bookings = bookingRepository.findByUserOrderByBookingDateDesc(user);
+        return ResponseEntity.ok(bookings);
     }
 }

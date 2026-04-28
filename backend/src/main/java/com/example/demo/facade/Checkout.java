@@ -1,16 +1,24 @@
 package com.example.demo.facade;
 
+import com.example.demo.model.Booking;
 import com.example.demo.model.Movie;
 import com.example.demo.model.Showtime;
+import com.example.demo.model.Ticket;
 import com.example.demo.model.User;
+
 import com.example.demo.services.PricingService;
 import com.example.demo.services.SeatService;
 import com.example.demo.services.EmailService;
+
+import com.example.demo.repository.BookingRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.repository.ShowtimeRepository;
+import com.example.demo.repository.TicketRepository;
 import com.example.demo.repository.MovieRepository;
+
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,15 +33,19 @@ public class Checkout implements CheckoutFacade {
     private final UserRepository userRepository;
     private final ShowtimeRepository showtimeRepository;
     private final MovieRepository movieRepository;
+    private final BookingRepository bookingRepository;
+    private final TicketRepository ticketRepository;
 
     public Checkout(PricingService pricingService, SeatService seatService, EmailService emailService,
-                    UserRepository userRepository, ShowtimeRepository showtimeRepository, MovieRepository movieRepository) {
+                    UserRepository userRepository, ShowtimeRepository showtimeRepository, MovieRepository movieRepository, BookingRepository bookingRepository, TicketRepository ticketRepository) {
         this.pricingService = pricingService;
         this.seatService = seatService;
         this.emailService = emailService;
         this.userRepository = userRepository;
         this.showtimeRepository = showtimeRepository;
         this.movieRepository = movieRepository;
+        this.bookingRepository = bookingRepository;
+        this.ticketRepository = ticketRepository;
     }
 
     @Override
@@ -64,12 +76,34 @@ public class Checkout implements CheckoutFacade {
         // Mark seats as unavailable
         seatService.markSeatsUnavailable(seatIds, showtime);
 
+        Booking booking = new Booking();
+        booking.setUser(user);
+        booking.setShowtime(showtime);
+        booking.setBookingDate(LocalDateTime.now());
+        booking.setTotalPrice(total);
+        booking.setStatus("CONFIRMED");
+        booking.setConfirmationNumber(confirmationNumber);
+
+        Booking savedBooking = bookingRepository.save(booking);
+
+        for (Integer seatId : seatIds) {
+            Ticket ticket = new Ticket();
+            ticket.setBooking(savedBooking);
+            ticket.setSeatNumber(String.valueOf(seatId));
+            ticket.setTicketType("STANDARD");
+            ticket.setPrice(total / seatIds.size());
+            ticket.setStatus("ACTIVE");
+
+            ticketRepository.save(ticket);
+        }
+
         // Send confirmation email
         emailService.sendBookingConfirmation(confirmationNumber, user, movie, showtime, 
             seatIds, adultCount, childCount, seniorCount, total);
 
         // Build response
         Map<String, Object> response = new HashMap<>();
+        response.put("bookingId", savedBooking.getBookingId());
         response.put("confirmationNumber", confirmationNumber);
         response.put("total", total);
         response.put("movieTitle", movie.getTitle());
