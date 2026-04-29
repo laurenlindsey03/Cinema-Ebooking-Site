@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+const [recommendations, setRecommendations] = useState<string[]>([]);
+const [loadingRecs, setLoadingRecs] = useState(false);
 
 type CardData = {
   cardId: number | null;
@@ -35,6 +37,19 @@ const Profile = () => {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
+
+    setLoadingRecs(true);
+
+    fetch(`http://localhost:8080/api/recommendations/${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setRecommendations(data);
+        setLoadingRecs(false);
+      })
+      .catch((err) => {
+        console.error("Recommendation fetch error:", err);
+        setLoadingRecs(false);
+      });
 
     fetch(`http://localhost:8080/users/${userId}`)
       .then(res => res.json())
@@ -400,6 +415,50 @@ const Profile = () => {
               </div>
             );
           })}
+        </div>
+        <div style={{ marginTop: 50 }}>
+          <h2 style={{ color: "#FFCC00", marginBottom: 20 }}>
+            AI Recommendations For You
+          </h2>
+
+          {loadingRecs && (
+            <p style={{ color: "white" }}>
+              Generating personalized recommendations...
+            </p>
+          )}
+
+          {!loadingRecs && recommendations.length === 0 && (
+            <p style={{ color: "white" }}>
+              No recommendations available.
+            </p>
+          )}
+
+          <div
+            style={{
+              display: "flex",
+              gap: 20,
+              flexWrap: "wrap",
+              marginTop: 20
+            }}
+          >
+            {recommendations.map((movie, index) => (
+              <div
+                key={index}
+                style={{
+                  background: "#111",
+                  padding: 20,
+                  borderRadius: 12,
+                  width: 220,
+                  border: "1px solid #222",
+                  textAlign: "center"
+                }}
+              >
+                <p style={{ color: "white", fontWeight: "bold" }}>
+                  {movie}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>
