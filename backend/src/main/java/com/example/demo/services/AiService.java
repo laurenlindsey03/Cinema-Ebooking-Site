@@ -33,7 +33,7 @@ public class AiService {
         List<Map<String, String>> parts = new ArrayList<>();
         Map<String, String> textPart = new HashMap<>();
         
-        String strictPrompt = "You are a cinema recommendation AI. Reply ONLY with a comma-separated list of 3 movie titles. Do not include quotes, numbers, markdown, or extra text. " + prompt;
+        String strictPrompt = "You are a movie recommendation AI. Reply ONLY with a comma-separated list of 3 movie titles. Do not include quotes, numbers, markdown, or extra text. " + prompt;
         
         textPart.put("text", strictPrompt);
         parts.add(textPart);

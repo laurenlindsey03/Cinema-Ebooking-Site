@@ -421,49 +421,27 @@ const Profile = () => {
             );
           })}
         </div>
-        <div style={{ marginTop: 50 }}>
-          <h2 style={{ color: "#FFCC00", marginBottom: 20 }}>
-            AI Recommendations For You
-          </h2>
-
+          <div style={{ marginTop: 50, padding: "20px", background: "#1a1a1a", borderRadius: "8px", borderLeft: "4px solid #FFCC00" }}>
+          
           {loadingRecs && (
-            <p style={{ color: "white" }}>
-              Generating personalized recommendations...
+            <p style={{ color: "#aaa", fontStyle: "italic", margin: 0 }}>
+              Gemini is generating recommendations based on your favorite movies...
             </p>
           )}
 
           {!loadingRecs && recommendations.length === 0 && (
-            <p style={{ color: "white" }}>
+            <p style={{ color: "#aaa", margin: 0 }}>
               No recommendations available.
             </p>
           )}
 
-          <div
-            style={{
-              display: "flex",
-              gap: 20,
-              flexWrap: "wrap",
-              marginTop: 20
-            }}
-          >
-            {recommendations.map((movie, index) => (
-              <div
-                key={index}
-                style={{
-                  background: "#111",
-                  padding: 20,
-                  borderRadius: 12,
-                  width: 220,
-                  border: "1px solid #222",
-                  textAlign: "center"
-                }}
-              >
-                <p style={{ color: "white", fontWeight: "bold" }}>
-                  {movie}
-                </p>
-              </div>
-            ))}
-          </div>
+          {!loadingRecs && recommendations.length > 0 && (
+            <p style={{ color: "white", fontSize: "16px", margin: 0, lineHeight: "1.5" }}>
+              <strong style={{ color: "#FFCC00" }}>Gemini recommends:</strong>{" "}
+              {recommendations.join(", ")}.
+            </p>
+          )}
+          
         </div>
       </section>
     </div>
