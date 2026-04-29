@@ -3,19 +3,6 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
-const posterMap: { [key: string]: string } = {
-  "Crime 101": "/images/Crime101.jpeg",
-  "GOAT": "/images/Goat.jpg",
-  "I Can Only Imagine 2": "/images/ICanOnlyImagine2.jpg",
-  "Peaky Blinders: The Immortal Man": "/images/PeakyBlinders.jpeg",
-  "Project Hail Mary": "/images/ProjectHailMary.jpeg",
-  "Reminders of Him": "/images/RemindersOfHim.jpeg",
-  "Send Help": "/images/SendHelp.jpeg",
-  "Solo Mio": "/images/SoloMia.jpg",
-  "The Bride!": "/images/TheBride!.jpeg",
-  "Wuthering Heights": "/images/WutheringHeights.jpeg",
-};
-
 type CardData = {
   cardId: number | null;
   cardNumber: string;
@@ -380,13 +367,14 @@ const Profile = () => {
               <div key={movie.id} style={favoriteCard}>
                 <Link href={`/movie/${movie.id}`}>
                   <img
-                    src={posterMap[movie.title] || "/images/default.jpg"}
+                    src={movie.posterUrl || "/images/default.jpg"}
                     alt={movie.title}
                     style={{
                       width: "160px",
                       height: "240px",
                       borderRadius: "12px",
                       cursor: "pointer",
+                      objectFit: "cover"
                     }}
                   />
                 </Link>
