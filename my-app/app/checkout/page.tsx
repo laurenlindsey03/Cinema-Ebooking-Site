@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Checkout() {
@@ -8,78 +8,195 @@ export default function Checkout() {
 
   const [booking, setBooking] = useState<any>(null);
   const [seats, setSeats] = useState<string[]>([]);
-  const [email, setEmail] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
+  const [cardholderName, setCardholderName] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [zipCode, setZipCode] = useState("");
+  const [savedCards, setSavedCards] = useState<any[]>([]);
+  const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
+
+  const [cardNumber, setCardNumber] = useState("");
+  const [expirationDate, setExpirationDate] = useState("");
+  const [billingAddress, setBillingAddress] = useState("");
+  const [saveCard, setSaveCard] = useState(false);
 
   useEffect(() => {
     const bookingData = JSON.parse(localStorage.getItem("bookingData") || "{}");
     const selectedSeats = JSON.parse(localStorage.getItem("selectedSeats") || "[]");
+    const id = localStorage.getItem("userId");
 
-    setBooking(bookingData);
-    setSeats(selectedSeats);
-
-    // Require login
-    const userEmail = localStorage.getItem("userEmail");
-    if (!userEmail) {
-      alert("Please login to continue.");
+    if (!id) {
+      alert("Please login.");
       router.push("/login?redirect=/checkout");
       return;
     }
 
-    setEmail(userEmail);
+    setBooking(bookingData);
+    setSeats(selectedSeats);
+    setUserId(id);
+
+    fetch(`http://localhost:8080/profile/cards/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setSavedCards(data);
+      })
+      .catch(() => setSavedCards([]));
   }, []);
 
   if (!booking) return null;
 
-  const adultTotal = booking.adult * 15;
-  const childTotal = booking.child * 7;
-  const seniorTotal = booking.senior * 10;
+  const subtotal =
+    booking.adult * 15 +
+    booking.child * 7 +
+    booking.senior * 10;
 
-  const subtotal = adultTotal + childTotal + seniorTotal;
+  async function handlePlaceOrder() {
+    let paymentData = {};
 
-  function proceedToPayment() {
-    if (!email) {
-      alert("Email required.");
+    if (savedCards.length > 0 && selectedCardId) {
+      paymentData = { cardId: selectedCardId };
+    } else {
+      if (!cardNumber || !expirationDate || !billingAddress) {
+        alert("Please complete card information.");
+        return;
+      }
+
+      paymentData = {
+        cardNumber,
+        expirationDate,
+        billingAddress,
+        saveCard
+      };
+    }
+
+    const payload = {
+      userId: Number(userId),
+      showtimeId: booking.showtimeId,
+      seatIds: seats,
+      adultTickets: booking.adult,
+      childTickets: booking.child,
+      seniorTickets: booking.senior,
+      ...paymentData
+    };
+
+    const response = await fetch("http://localhost:8080/api/bookings/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      alert("Checkout failed.");
       return;
     }
 
-    localStorage.setItem("checkoutUserId", booking.userId);
-    localStorage.setItem("checkoutEmail", email);
-    router.push("/payment");
+    const data = await response.json();
+    router.push(`/confirmation?confirmationNumber=${data.confirmationNumber}`);
   }
 
   return (
     <div style={pageStyle}>
       <section style={cardStyle}>
-        <h2 style={titleStyle}>Order Summary</h2>
+        <h2 style={titleStyle}>Checkout</h2>
 
         <div style={sectionStyle}>
           <p><strong>Movie:</strong> {booking.movie}</p>
-          <p><strong>Showtime:</strong> {new Date(booking.time).toLocaleString()}</p>
           <p><strong>Seats:</strong> {seats.join(", ")}</p>
+          <p><strong>Total:</strong> ${subtotal}</p>
         </div>
 
         <div style={sectionStyle}>
-          <p>Adult ({booking.adult}) × $15 = ${adultTotal}</p>
-          <p>Child ({booking.child}) × $7 = ${childTotal}</p>
-          <p>Senior ({booking.senior}) × $10 = ${seniorTotal}</p>
-        </div>
+      <h3>Payment Information</h3>
 
-        <div style={{ ...sectionStyle, fontWeight: "bold", fontSize: 18 }}>
-          Subtotal (Before Tax): ${subtotal}
-        </div>
+      {savedCards.length > 0 && (
+        <>
+          {savedCards.map((card) => (
+            <div key={card.cardId} style={cardOptionStyle}>
+              <input
+                type="radio"
+                name="card"
+                value={card.cardId}
+                checked={selectedCardId === card.cardId}
+                onChange={() => setSelectedCardId(card.cardId)}
+              />
+              <span>
+                Card ending in {card.last4} — 
+                Expires {card.expirationDate?.slice(0,7)}
+              </span>
+            </div>
+          ))}
 
-        <div style={sectionStyle}>
-          <label>Email Confirmation</label>
+          <div style={cardOptionStyle}>
+            <input
+              type="radio"
+              name="card"
+              value="new"
+              checked={selectedCardId === null}
+              onChange={() => setSelectedCardId(null)}
+            />
+            <span>Use a new card</span>
+          </div>
+        </>
+      )}
+
+      {(savedCards.length === 0 || selectedCardId === null) && (
+        <>
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Cardholder Name"
+            value={cardholderName}
+            onChange={(e) => setCardholderName(e.target.value)}
             style={inputStyle}
           />
-        </div>
 
-        <button style={primaryButton} onClick={proceedToPayment}>
-          Continue to Payment
+          <input
+            placeholder="Card Number"
+            value={cardNumber}
+            onChange={(e) => setCardNumber(e.target.value)}
+            style={inputStyle}
+          />
+
+          <input
+            type="month"
+            value={expirationDate}
+            onChange={(e) => setExpirationDate(e.target.value)}
+            style={inputStyle}
+          />
+
+          <input
+            placeholder="CVV"
+            value={cvv}
+            onChange={(e) => setCvv(e.target.value)}
+            style={inputStyle}
+          />
+
+          <input
+            placeholder="Billing Address"
+            value={billingAddress}
+            onChange={(e) => setBillingAddress(e.target.value)}
+            style={inputStyle}
+          />
+
+          <input
+            placeholder="Zip Code"
+            value={zipCode}
+            onChange={(e) => setZipCode(e.target.value)}
+            style={inputStyle}
+          />
+
+          <label>
+            <input
+              type="checkbox"
+              checked={saveCard}
+              onChange={() => setSaveCard(!saveCard)}
+            />
+            Save this card
+          </label>
+        </>
+      )}
+    </div>
+
+        <button style={primaryButton} onClick={handlePlaceOrder}>
+          Place Order
         </button>
       </section>
     </div>
@@ -115,7 +232,7 @@ const sectionStyle = {
 const inputStyle = {
   width: "100%",
   padding: 10,
-  marginTop: 6,
+  marginBottom: 10,
   borderRadius: 6,
   border: "1px solid #333",
   background: "#222",
@@ -131,4 +248,11 @@ const primaryButton = {
   borderRadius: 8,
   fontWeight: "bold",
   cursor: "pointer"
+};
+
+const cardOptionStyle = {
+  marginBottom: 10,
+  display: "flex",
+  gap: 10,
+  alignItems: "center"
 };

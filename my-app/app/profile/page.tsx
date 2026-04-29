@@ -3,19 +3,6 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
-const posterMap: { [key: string]: string } = {
-  "Crime 101": "/images/Crime101.jpeg",
-  "GOAT": "/images/Goat.jpg",
-  "I Can Only Imagine 2": "/images/ICanOnlyImagine2.jpg",
-  "Peaky Blinders: The Immortal Man": "/images/PeakyBlinders.jpeg",
-  "Project Hail Mary": "/images/ProjectHailMary.jpeg",
-  "Reminders of Him": "/images/RemindersOfHim.jpeg",
-  "Send Help": "/images/SendHelp.jpeg",
-  "Solo Mio": "/images/SoloMia.jpg",
-  "The Bride!": "/images/TheBride!.jpeg",
-  "Wuthering Heights": "/images/WutheringHeights.jpeg",
-};
-
 type CardData = {
   cardId: number | null;
   cardNumber: string;
@@ -24,6 +11,8 @@ type CardData = {
 };
 
 const Profile = () => {
+  const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [loadingRecs, setLoadingRecs] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [favorites, setFavorites] = useState<any[]>([]);
   const [message, setMessage] = useState("");
@@ -48,6 +37,23 @@ const Profile = () => {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
+
+    setLoadingRecs(true);
+
+    fetch(`http://localhost:8080/api/recommendations/${userId}`)
+    .then(res => res.json())
+    .then(data => {
+      if (Array.isArray(data)) {
+        setRecommendations(data);
+      } else {
+        setRecommendations([]);
+      }
+      setLoadingRecs(false); 
+    })
+    .catch(() => {
+      setRecommendations([]);
+      setLoadingRecs(false);
+    });
 
     fetch(`http://localhost:8080/users/${userId}`)
       .then(res => res.json())
@@ -132,7 +138,7 @@ const Profile = () => {
           return; 
         }
         
-        const expirationDate = new Date(card.expirationDate);
+        const expirationDate = new Date(card.expirationDate + "-01");
         
         if (!isNaN(expirationDate.getTime()) && expirationDate <= today) {
           setIsError(true);
@@ -315,9 +321,10 @@ const Profile = () => {
                 }}
               />
 
-              <input style={inputStyle}
-                placeholder="Expiration Date (YYYY-MM-DD)"
-                value={card.expirationDate}
+              <input
+                type="month"
+                style={inputStyle}
+                value={card.expirationDate?.slice(0, 7)}
                 onChange={(e) => {
                   const updated = [...cards];
                   updated[index].expirationDate = e.target.value;
@@ -380,13 +387,14 @@ const Profile = () => {
               <div key={movie.id} style={favoriteCard}>
                 <Link href={`/movie/${movie.id}`}>
                   <img
-                    src={posterMap[movie.title] || "/images/default.jpg"}
+                    src={movie.posterUrl || "/images/default.jpg"}
                     alt={movie.title}
                     style={{
                       width: "160px",
                       height: "240px",
                       borderRadius: "12px",
                       cursor: "pointer",
+                      objectFit: "cover"
                     }}
                   />
                 </Link>
@@ -412,6 +420,50 @@ const Profile = () => {
               </div>
             );
           })}
+        </div>
+        <div style={{ marginTop: 50 }}>
+          <h2 style={{ color: "#FFCC00", marginBottom: 20 }}>
+            AI Recommendations For You
+          </h2>
+
+          {loadingRecs && (
+            <p style={{ color: "white" }}>
+              Generating personalized recommendations...
+            </p>
+          )}
+
+          {!loadingRecs && recommendations.length === 0 && (
+            <p style={{ color: "white" }}>
+              No recommendations available.
+            </p>
+          )}
+
+          <div
+            style={{
+              display: "flex",
+              gap: 20,
+              flexWrap: "wrap",
+              marginTop: 20
+            }}
+          >
+            {recommendations.map((movie, index) => (
+              <div
+                key={index}
+                style={{
+                  background: "#111",
+                  padding: 20,
+                  borderRadius: 12,
+                  width: 220,
+                  border: "1px solid #222",
+                  textAlign: "center"
+                }}
+              >
+                <p style={{ color: "white", fontWeight: "bold" }}>
+                  {movie}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>
