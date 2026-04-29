@@ -23,6 +23,7 @@ type Movie = {
 export default function ManageMovies() {
 
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [error, setError] = useState<string>("");
   const [newMovie, setNewMovie] = useState<Movie>({
     title: "",
     synopsis: "",
@@ -75,11 +76,30 @@ export default function ManageMovies() {
   const handleListChange = (field: keyof Movie, value: string) => {
     setNewMovie(prev => ({
       ...prev,
-      [field]: value.split(",").map(v => v.trim())
+      [field]: value.split(",").map(v => v.trim()).filter(v => v !== "")
     }));
   };
 
   const handleAddMovie = async () => {
+    
+    const isFormComplete = 
+      newMovie.title.trim() !== "" &&
+      newMovie.synopsis.trim() !== "" &&
+      newMovie.mpaaRating.trim() !== "" &&
+      newMovie.status.trim() !== "" &&
+      newMovie.releaseDate.trim() !== "" &&
+      newMovie.posterUrl.trim() !== "" &&
+      newMovie.trailerUrl.trim() !== "" &&
+      newMovie.categories.length > 0 &&
+      newMovie.cast.length > 0 &&
+      newMovie.directors.length > 0 &&
+      newMovie.producers.length > 0;
+
+    if (!isFormComplete) {
+      setError("All fields are required.");
+      return;
+    }
+
     try {
       const response = await fetch(ADMIN_MOVIE_API, {
         method: "POST",
@@ -229,6 +249,12 @@ export default function ManageMovies() {
           style={inputStyle}
           onChange={e => handleListChange("producers", e.target.value)}
         />
+
+        {error && (
+          <p style={{ color: "#ff4444", fontWeight: "bold", marginTop: "15px" }}>
+            {error}
+          </p>
+        )}
 
         <button style={buttonStyle} onClick={handleAddMovie}>
           Save Movie

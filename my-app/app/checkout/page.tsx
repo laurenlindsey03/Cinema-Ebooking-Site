@@ -35,7 +35,7 @@ export default function Checkout() {
     setSeats(selectedSeats);
     setUserId(id);
 
-    fetch(`http://localhost:8080/api/cards/user/${id}`)
+    fetch(`http://localhost:8080/profile/cards/${id}`)
       .then(res => res.json())
       .then(data => {
         setSavedCards(data);
@@ -106,79 +106,94 @@ export default function Checkout() {
         </div>
 
         <div style={sectionStyle}>
-          <h3>Payment Information</h3>
+      <h3>Payment Information</h3>
 
-          {savedCards.length > 0 ? (
-            <>
-              {savedCards.map((card) => (
-                <div key={card.cardId} style={cardOptionStyle}>
-                  <input
-                    type="radio"
-                    name="card"
-                    value={card.cardId}
-                    onChange={() => setSelectedCardId(card.cardId)}
-                  />
-                  <span>
-                    Card ending in {card.last4} — Expires {card.expirationDate}
-                  </span>
-                </div>
-              ))}
-            </>
-          ) : (
-            <>
+      {savedCards.length > 0 && (
+        <>
+          {savedCards.map((card) => (
+            <div key={card.cardId} style={cardOptionStyle}>
               <input
-                placeholder="Cardholder Name"
-                value={cardholderName}
-                onChange={(e) => setCardholderName(e.target.value)}
-                style={inputStyle}
+                type="radio"
+                name="card"
+                value={card.cardId}
+                checked={selectedCardId === card.cardId}
+                onChange={() => setSelectedCardId(card.cardId)}
               />
+              <span>
+                Card ending in {card.last4} — 
+                Expires {card.expirationDate?.slice(0,7)}
+              </span>
+            </div>
+          ))}
 
-              <input
-                placeholder="Card Number"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(e.target.value)}
-                style={inputStyle}
-              />
+          <div style={cardOptionStyle}>
+            <input
+              type="radio"
+              name="card"
+              value="new"
+              checked={selectedCardId === null}
+              onChange={() => setSelectedCardId(null)}
+            />
+            <span>Use a new card</span>
+          </div>
+        </>
+      )}
 
-              <input
-                type="month"
-                value={expirationDate}
-                onChange={(e) => setExpirationDate(e.target.value)}
-                style={inputStyle}
-              />
+      {(savedCards.length === 0 || selectedCardId === null) && (
+        <>
+          <input
+            placeholder="Cardholder Name"
+            value={cardholderName}
+            onChange={(e) => setCardholderName(e.target.value)}
+            style={inputStyle}
+          />
 
-              <input
-                placeholder="CVV"
-                value={cvv}
-                onChange={(e) => setCvv(e.target.value)}
-                style={inputStyle}
-              />
+          <input
+            placeholder="Card Number"
+            value={cardNumber}
+            onChange={(e) => setCardNumber(e.target.value)}
+            style={inputStyle}
+          />
 
-              <input
-                placeholder="Billing Address"
-                value={billingAddress}
-                onChange={(e) => setBillingAddress(e.target.value)}
-                style={inputStyle}
-              />
+          <input
+            type="month"
+            value={expirationDate}
+            onChange={(e) => setExpirationDate(e.target.value)}
+            style={inputStyle}
+          />
 
-              <input
-                placeholder="Zip Code"
-                value={zipCode}
-                onChange={(e) => setZipCode(e.target.value)}
-                style={inputStyle}
-              />
+          <input
+            placeholder="CVV"
+            value={cvv}
+            onChange={(e) => setCvv(e.target.value)}
+            style={inputStyle}
+          />
 
-              <label>
-                <input
-                  type="checkbox"
-                  checked={saveCard}
-                  onChange={() => setSaveCard(!saveCard)}
-                />
-                Save this card
-              </label>
-            </>
-          )}
-        </div>
+          <input
+            placeholder="Billing Address"
+            value={billingAddress}
+            onChange={(e) => setBillingAddress(e.target.value)}
+            style={inputStyle}
+          />
+
+          <input
+            placeholder="Zip Code"
+            value={zipCode}
+            onChange={(e) => setZipCode(e.target.value)}
+            style={inputStyle}
+          />
+
+          <label>
+            <input
+              type="checkbox"
+              checked={saveCard}
+              onChange={() => setSaveCard(!saveCard)}
+            />
+            Save this card
+          </label>
+        </>
+      )}
+    </div>
 
         <button style={primaryButton} onClick={handlePlaceOrder}>
           Place Order
