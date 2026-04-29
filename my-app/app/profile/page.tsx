@@ -2,8 +2,6 @@
 
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-const [recommendations, setRecommendations] = useState<string[]>([]);
-const [loadingRecs, setLoadingRecs] = useState(false);
 
 type CardData = {
   cardId: number | null;
@@ -13,6 +11,8 @@ type CardData = {
 };
 
 const Profile = () => {
+  const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [loadingRecs, setLoadingRecs] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [favorites, setFavorites] = useState<any[]>([]);
   const [message, setMessage] = useState("");
@@ -41,15 +41,19 @@ const Profile = () => {
     setLoadingRecs(true);
 
     fetch(`http://localhost:8080/api/recommendations/${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
+    .then(res => res.json())
+    .then(data => {
+      if (Array.isArray(data)) {
         setRecommendations(data);
-        setLoadingRecs(false);
-      })
-      .catch((err) => {
-        console.error("Recommendation fetch error:", err);
-        setLoadingRecs(false);
-      });
+      } else {
+        setRecommendations([]);
+      }
+      setLoadingRecs(false); 
+    })
+    .catch(() => {
+      setRecommendations([]);
+      setLoadingRecs(false);
+    });
 
     fetch(`http://localhost:8080/users/${userId}`)
       .then(res => res.json())
@@ -134,7 +138,7 @@ const Profile = () => {
           return; 
         }
         
-        const expirationDate = new Date(card.expirationDate);
+        const expirationDate = new Date(card.expirationDate + "-01");
         
         if (!isNaN(expirationDate.getTime()) && expirationDate <= today) {
           setIsError(true);
@@ -317,9 +321,10 @@ const Profile = () => {
                 }}
               />
 
-              <input style={inputStyle}
-                placeholder="Expiration Date (YYYY-MM-DD)"
-                value={card.expirationDate}
+              <input
+                type="month"
+                style={inputStyle}
+                value={card.expirationDate?.slice(0, 7)}
                 onChange={(e) => {
                   const updated = [...cards];
                   updated[index].expirationDate = e.target.value;
