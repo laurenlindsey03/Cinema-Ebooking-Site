@@ -52,7 +52,8 @@ public class Checkout implements CheckoutFacade {
     public Map<String, Object> processOrder(Map<String, Object> payload) {
         
         int userId = (Integer) payload.getOrDefault("userId", 0);
-        long showtimeId = ((Number) payload.getOrDefault("showtimeId", 0L)).longValue();
+        Number showtimeNum = (Number) payload.get("showtimeId");
+        long showtimeId = (showtimeNum != null) ? showtimeNum.longValue() : 0L;
         @SuppressWarnings("unchecked")
         List<Integer> seatIds = (List<Integer>) payload.get("seatIds");
         int adultCount = (Integer) payload.getOrDefault("adultTickets", 0);

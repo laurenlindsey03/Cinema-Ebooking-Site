@@ -98,7 +98,7 @@ export default function MovieDetails() {
             </div>
 
             <Link
-              href={`/booking?movie=${encodeURIComponent(movie.title)}&time=${show.startTime}`}
+              href={`/booking?movie=${encodeURIComponent(movie.title)}&time=${show.startTime}&showtimeId=${show.id}`}
             >
               <button
                 style={{
