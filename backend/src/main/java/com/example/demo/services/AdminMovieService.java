@@ -30,7 +30,6 @@ public class AdminMovieService {
         movie.setReleaseDate(request.getReleaseDate());
         movie.setPosterUrl(request.getPosterUrl());
         movie.setTrailerUrl(request.getTrailerUrl());
-        movie.setCategories(request.getCategories());
 
         return movieRepository.save(movie);
     }
