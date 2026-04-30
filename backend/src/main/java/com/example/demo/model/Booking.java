@@ -3,7 +3,7 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.cglib.core.Local;
 
 @Entity
@@ -16,13 +16,16 @@ public class Booking {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "showtime_id", nullable = false)
+    @JsonIgnore
     private Showtime showtime;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Ticket> tickets;
 
     private LocalDateTime bookingDate;
