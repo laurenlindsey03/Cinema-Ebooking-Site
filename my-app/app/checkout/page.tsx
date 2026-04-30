@@ -8,6 +8,7 @@ export default function Checkout() {
 
   const [booking, setBooking] = useState<any>(null);
   const [seats, setSeats] = useState<string[]>([]);
+  const [seatLabels, setSeatLabels] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   
   const [cardholderName, setCardholderName] = useState("");
@@ -26,6 +27,7 @@ export default function Checkout() {
   useEffect(() => {
     const bookingData = JSON.parse(localStorage.getItem("bookingData") || "{}");
     const selectedSeats = JSON.parse(localStorage.getItem("selectedSeats") || "[]");
+    const labels = JSON.parse(localStorage.getItem("selectedSeatLabels") || "[]");
     const id = localStorage.getItem("userId");
 
     if (!id) {
@@ -36,6 +38,7 @@ export default function Checkout() {
 
     setBooking(bookingData);
     setSeats(selectedSeats);
+    setSeatLabels(labels);
     setUserId(id);
 
     fetch(`http://localhost:8080/api/payments/saved-cards?userId=${id}`)
@@ -115,7 +118,7 @@ export default function Checkout() {
 
         <div style={sectionStyle}>
           <p><strong>Movie:</strong> {booking.movie}</p>
-          <p><strong>Seats:</strong> {seats.join(", ")}</p>
+          <p><strong>Seats:</strong> {seatLabels.length > 0 ? seatLabels.join(", ") : seats.join(", ")}</p>
           <p><strong>Total:</strong> ${subtotal}</p>
         </div>
 

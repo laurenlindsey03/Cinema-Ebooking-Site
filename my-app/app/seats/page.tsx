@@ -64,7 +64,13 @@ export default function Seats() {
       return;
     }
 
+    const selectedLabels = selectedSeatIds.map(id => {
+      const seat = dbSeats.find(s => s.id === id);
+      return seat ? seat.seatNumber : id;
+    });
+
     localStorage.setItem("selectedSeats", JSON.stringify(selectedSeatIds));
+    localStorage.setItem("selectedSeatLabels", JSON.stringify(selectedLabels));
     router.push("/checkout");
   }
 

@@ -5,6 +5,7 @@ import com.example.demo.model.Movie;
 import com.example.demo.model.Showtime;
 import com.example.demo.model.Ticket;
 import com.example.demo.model.User;
+import com.example.demo.model.Seat;
 
 import com.example.demo.services.PricingService;
 import com.example.demo.services.SeatService;
@@ -15,10 +16,12 @@ import com.example.demo.repository.UserRepository;
 import com.example.demo.repository.ShowtimeRepository;
 import com.example.demo.repository.TicketRepository;
 import com.example.demo.repository.MovieRepository;
+import com.example.demo.repository.SeatRepository;
 
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +38,10 @@ public class Checkout implements CheckoutFacade {
     private final MovieRepository movieRepository;
     private final BookingRepository bookingRepository;
     private final TicketRepository ticketRepository;
+    private final SeatRepository seatRepository;
 
     public Checkout(PricingService pricingService, SeatService seatService, EmailService emailService,
-                    UserRepository userRepository, ShowtimeRepository showtimeRepository, MovieRepository movieRepository, BookingRepository bookingRepository, TicketRepository ticketRepository) {
+                    UserRepository userRepository, ShowtimeRepository showtimeRepository, MovieRepository movieRepository, BookingRepository bookingRepository, TicketRepository ticketRepository, SeatRepository seatRepository) {
         this.pricingService = pricingService;
         this.seatService = seatService;
         this.emailService = emailService;
@@ -46,6 +50,7 @@ public class Checkout implements CheckoutFacade {
         this.movieRepository = movieRepository;
         this.bookingRepository = bookingRepository;
         this.ticketRepository = ticketRepository;
+        this.seatRepository = seatRepository;
     }
 
     @Override
@@ -59,6 +64,8 @@ public class Checkout implements CheckoutFacade {
 
         @SuppressWarnings("unchecked")
         List<Integer> seatIds = (List<Integer>) payload.get("seatIds");
+
+        List<String> seatLabels = new ArrayList<>();
 
         // Fetch entities
         User user = userRepository.findById(userId)
@@ -88,6 +95,11 @@ public class Checkout implements CheckoutFacade {
         Booking savedBooking = bookingRepository.save(booking);
 
         for (Integer seatId : seatIds) {
+            Seat seat = seatRepository.findById(seatId)
+                    .orElseThrow(() -> new RuntimeException("Seat not found"));
+            String actualSeatLabel = seat.getSeatNumber();
+            seatLabels.add(actualSeatLabel);
+
             Ticket ticket = new Ticket();
             ticket.setBooking(savedBooking);
             ticket.setSeatNumber(String.valueOf(seatId));
@@ -100,7 +112,7 @@ public class Checkout implements CheckoutFacade {
 
         // Send confirmation email
         emailService.sendBookingConfirmation(confirmationNumber, user, movie, showtime, 
-            seatIds, adultCount, childCount, seniorCount, total);
+            seatLabels, adultCount, childCount, seniorCount, total);
 
         // Build response
         Map<String, Object> response = new HashMap<>();
