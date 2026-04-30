@@ -79,41 +79,47 @@ export default function MovieDetails() {
         Showtimes
       </h2>
 
-      {showtimes.map((show) => {
-        const dateObj = new Date(show.startTime);
+      {showtimes
+        .filter((show) => {
+          const showtimeDate = new Date(show.startTime);
+          const now = new Date();
+          return showtimeDate > now; 
+        })
+        .map((show) => {
+          const dateObj = new Date(show.startTime);
 
-        const formattedDate = dateObj.toLocaleDateString();
-        const formattedTime = dateObj.toLocaleTimeString([], {
-          hour: "numeric",
-          minute: "2-digit"
-        });
+          const formattedDate = dateObj.toLocaleDateString();
+          const formattedTime = dateObj.toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit"
+          });
 
-        return (
-          <div key={show.id} style={{ marginBottom: "10px" }}>
-            <div style={{ fontWeight: 600 }}>
-              {formattedDate}
-            </div>
+          return (
+            <div key={show.id} style={{ marginBottom: "10px" }}>
+              <div style={{ fontWeight: 600 }}>
+                {formattedDate}
+              </div>
 
-            <Link
-              href={`/booking?movie=${encodeURIComponent(movie.title)}&time=${show.startTime}&showtimeId=${show.id}`}
-            >
-              <button
-                style={{
-                  margin: "5px",
-                  padding: "6px 12px",
-                  borderRadius: 6,
-                  border: "none",
-                  background: "#E50914",
-                  color: "#ffffff",
-                  cursor: "pointer"
-                }}
+              <Link
+                href={`/booking?movie=${encodeURIComponent(movie.title)}&time=${show.startTime}&showtimeId=${show.id}`}
               >
-                {formattedTime}
-              </button>
-            </Link>
-          </div>
-        );
-      })} 
+                <button
+                  style={{
+                    margin: "5px",
+                    padding: "6px 12px",
+                    borderRadius: 6,
+                    border: "none",
+                    background: "#E50914",
+                    color: "#ffffff",
+                    cursor: "pointer"
+                  }}
+                >
+                  {formattedTime}
+                </button>
+              </Link>
+            </div>
+          );
+      })}
 
       <h2 style={{ marginTop: "20px" }}>Trailer</h2>
 

@@ -31,6 +31,7 @@ export default function Booking() {
     }
 
     localStorage.setItem("bookingData", JSON.stringify({
+      showtimeId: showtimeId ? Number(showtimeId) : null,
       movie,
       time,
       showtimeId,
