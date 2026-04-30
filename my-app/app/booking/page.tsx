@@ -34,7 +34,6 @@ export default function Booking() {
       showtimeId: showtimeId ? Number(showtimeId) : null,
       movie,
       time,
-      showtimeId,
       adult,
       child,
       senior

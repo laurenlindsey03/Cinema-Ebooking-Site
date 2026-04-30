@@ -70,9 +70,17 @@ const Profile = () => {
 
         if (cardData && cardData.length > 0) {
           cardData.slice(0, 3).forEach((c: any, i: number) => {
+            
+            let displayCard = "";
+            if (c.last4) {
+              displayCard = `**** **** **** ${c.last4}`;
+            } else if (c.cardNumber) {
+              displayCard = c.cardNumber; 
+            }
+
             filled[i] = {
               cardId: c.cardId,
-              cardNumber: c.cardNumber || "",
+              cardNumber: displayCard, 
               expirationDate: c.expirationDate || "",
               billingAddress: c.billingAddress || ""
             };
