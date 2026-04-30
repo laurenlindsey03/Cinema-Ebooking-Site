@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 
 export default function Confirmation() {
   const params = useSearchParams();
-  const confirmation = params.get("confirmation");
+  const confirmation = params.get("confirmationNumber");
 
   return (
     <div style={pageStyle}>

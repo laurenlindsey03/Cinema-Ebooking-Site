@@ -59,9 +59,16 @@ export default function Checkout() {
   async function handlePlaceOrder() {
     setIsLoading(true);
     let paymentData = {};
+    let paymentRefForHistory = "Card on File"; 
 
     if (savedCards.length > 0 && selectedCardId) {
       paymentData = { cardId: selectedCardId };
+      
+      const cardUsed = savedCards.find(c => c.cardId === selectedCardId);
+      if (cardUsed) {
+        paymentRefForHistory = cardUsed.last4 || cardUsed.cardNumber?.slice(-4) || "Card on File";
+      }
+      
     } else {
       if (!cardNumber || !expirationDate || !billingAddress) {
         alert("Please complete card information.");
@@ -69,14 +76,34 @@ export default function Checkout() {
         return;
       }
 
+      const formattedExp = expirationDate.includes("-") && expirationDate.length === 7 
+          ? `${expirationDate}-01` 
+          : expirationDate;
+
       paymentData = {
         cardNumber,
-        expirationDate: expirationDate.includes("-") && expirationDate.length === 7 
-            ? `${expirationDate}-01` 
-            : expirationDate,
+        expirationDate: formattedExp,
         billingAddress,
         saveCard
       };
+
+      paymentRefForHistory = cardNumber.slice(-4); 
+
+      if (saveCard) {
+        try {
+          await fetch(`http://localhost:8080/profile/cards/${userId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              encryptedCardNumber: cardNumber, 
+              expirationDate: formattedExp,
+              billingAddress: billingAddress
+            })
+          });
+        } catch (err) {
+          console.error("Failed to save card to profile", err);
+        }
+      }
     }
 
     const payload = {
@@ -86,6 +113,7 @@ export default function Checkout() {
       adultTickets: booking.adult,
       childTickets: booking.child,
       seniorTickets: booking.senior,
+      paymentReference: paymentRefForHistory, 
       ...paymentData
     };
 

@@ -2,6 +2,7 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "showtimes")
@@ -14,11 +15,17 @@ public class Showtime {
     @Column(name = "movie_id", nullable = false)
     private Long movieId;
 
+    @ManyToOne
+    @JoinColumn(name = "movie_id", insertable = false, updatable = false)
+    @JsonIgnoreProperties("showtimes")
+    private Movie movie;
+
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
     @Column(name = "hall_name", nullable = false)
     private String hallName;
+    
     private LocalDateTime endTime;
     
     @ManyToOne
@@ -34,13 +41,21 @@ public class Showtime {
     public void setId(Long id) { 
         this.id = id; 
     }
-
-    public Long getMovieId() {
-         return movieId; 
+    
+    public Long getMovieId() { 
+        return movieId; 
     }
 
     public void setMovieId(Long movieId) { 
         this.movieId = movieId; 
+    }
+
+    public Movie getMovie() {
+         return movie; 
+    }
+
+    public void setMovie(Movie movie) { 
+        this.movie = movie; 
     }
 
     public LocalDateTime getStartTime() { 

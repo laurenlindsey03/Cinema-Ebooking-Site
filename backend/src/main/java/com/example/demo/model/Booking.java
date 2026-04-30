@@ -3,8 +3,9 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.cglib.core.Local;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "bookings")
@@ -16,16 +17,16 @@ public class Booking {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
+    @JsonIgnore 
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "showtime_id", nullable = false)
-    @JsonIgnore
+    @JsonIgnoreProperties({"bookings"})
     private Showtime showtime;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonIgnoreProperties("booking")
     private List<Ticket> tickets;
 
     private LocalDateTime bookingDate;
@@ -45,6 +46,16 @@ public class Booking {
         this.bookingDate = bookingDate;
         this.totalPrice = totalPrice;
         this.status = status;
+    }
+
+    private String paymentReference; 
+
+    public String getPaymentReference() {
+        return paymentReference;
+    }
+
+    public void setPaymentReference(String paymentReference) {
+        this.paymentReference = paymentReference;
     }
 
     public Integer getBookingId() {
@@ -106,5 +117,4 @@ public class Booking {
     public void setConfirmationNumber(String confirmationNumber) {
         this.confirmationNumber = confirmationNumber;
     }
-
 }
