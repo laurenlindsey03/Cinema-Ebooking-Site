@@ -110,12 +110,15 @@ export default function Checkout() {
       userId: Number(userId),
       showtimeId: Number(booking.showtimeId), 
       seatIds: seats.map(seat => Number(seat)),
+      seatNames: seatLabels,
       adultTickets: booking.adult,
       childTickets: booking.child,
       seniorTickets: booking.senior,
       paymentReference: paymentRefForHistory, 
       ...paymentData
     };
+
+    console.log("Send payload to backend", payload);
 
     try {
       const response = await fetch("http://localhost:8080/api/bookings/checkout", {

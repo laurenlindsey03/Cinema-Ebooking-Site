@@ -94,15 +94,24 @@ public class Checkout implements CheckoutFacade {
 
         Booking savedBooking = bookingRepository.save(booking);
 
-        for (Integer seatId : seatIds) {
+        @SuppressWarnings("unchecked")
+        List<String> frontendSeatNames = (List<String>) payload.get("seatNames");
+
+        for (int i = 0; i < seatIds.size(); i++) {
+            Integer seatId = seatIds.get(i);
             Seat seat = seatRepository.findById(seatId)
                     .orElseThrow(() -> new RuntimeException("Seat not found"));
-            String actualSeatLabel = seat.getSeatNumber();
+            
+            String actualSeatLabel = (frontendSeatNames != null && i < frontendSeatNames.size()) 
+                ? frontendSeatNames.get(i) 
+                : seat.getSeatNumber();
+                
             seatLabels.add(actualSeatLabel);
 
             Ticket ticket = new Ticket();
             ticket.setBooking(savedBooking);
-            ticket.setSeatNumber(String.valueOf(seatId));
+            
+            ticket.setSeatNumber(actualSeatLabel); 
             ticket.setTicketType("STANDARD");
             ticket.setPrice(total / seatIds.size());
             ticket.setStatus("ACTIVE");
