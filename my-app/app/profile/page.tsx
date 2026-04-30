@@ -3,19 +3,6 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
-const posterMap: { [key: string]: string } = {
-  "Crime 101": "/images/Crime101.jpeg",
-  "GOAT": "/images/Goat.jpg",
-  "I Can Only Imagine 2": "/images/ICanOnlyImagine2.jpg",
-  "Peaky Blinders: The Immortal Man": "/images/PeakyBlinders.jpeg",
-  "Project Hail Mary": "/images/ProjectHailMary.jpeg",
-  "Reminders of Him": "/images/RemindersOfHim.jpeg",
-  "Send Help": "/images/SendHelp.jpeg",
-  "Solo Mio": "/images/SoloMia.jpg",
-  "The Bride!": "/images/TheBride!.jpeg",
-  "Wuthering Heights": "/images/WutheringHeights.jpeg",
-};
-
 type CardData = {
   cardId: number | null;
   cardNumber: string;
@@ -24,6 +11,8 @@ type CardData = {
 };
 
 const Profile = () => {
+  const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [loadingRecs, setLoadingRecs] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [favorites, setFavorites] = useState<any[]>([]);
   const [message, setMessage] = useState("");
@@ -49,6 +38,23 @@ const Profile = () => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
 
+    setLoadingRecs(true);
+
+    fetch(`http://localhost:8080/api/recommendations/${userId}`)
+    .then(res => res.json())
+    .then(data => {
+      if (Array.isArray(data)) {
+        setRecommendations(data);
+      } else {
+        setRecommendations([]);
+      }
+      setLoadingRecs(false); 
+    })
+    .catch(() => {
+      setRecommendations([]);
+      setLoadingRecs(false);
+    });
+
     fetch(`http://localhost:8080/users/${userId}`)
       .then(res => res.json())
       .then(data => setUser(data));
@@ -64,9 +70,17 @@ const Profile = () => {
 
         if (cardData && cardData.length > 0) {
           cardData.slice(0, 3).forEach((c: any, i: number) => {
+            
+            let displayCard = "";
+            if (c.last4) {
+              displayCard = `**** **** **** ${c.last4}`;
+            } else if (c.cardNumber) {
+              displayCard = c.cardNumber; 
+            }
+
             filled[i] = {
               cardId: c.cardId,
-              cardNumber: c.cardNumber || "",
+              cardNumber: displayCard, 
               expirationDate: c.expirationDate || "",
               billingAddress: c.billingAddress || ""
             };
@@ -132,7 +146,7 @@ const Profile = () => {
           return; 
         }
         
-        const expirationDate = new Date(card.expirationDate);
+        const expirationDate = new Date(card.expirationDate + "-01");
         
         if (!isNaN(expirationDate.getTime()) && expirationDate <= today) {
           setIsError(true);
@@ -151,6 +165,11 @@ const Profile = () => {
           setIsError(true);
           setMessage("A valid card number should be exactly 16 digits.");
           return; 
+        }
+
+        let formattedDate = card.expirationDate;
+        if (formattedDate && formattedDate.length === 7) {
+          formattedDate += "-01"; 
         }
 
         const expirationDate = new Date(card.expirationDate);
@@ -172,7 +191,7 @@ const Profile = () => {
           body: JSON.stringify({
             cardId: card.cardId,
             encryptedCardNumber: card.cardNumber,
-            expirationDate: card.expirationDate,
+            expirationDate: formattedDate,
             billingAddress: card.billingAddress
           })
         });
@@ -315,9 +334,10 @@ const Profile = () => {
                 }}
               />
 
-              <input style={inputStyle}
-                placeholder="Expiration Date (YYYY-MM-DD)"
-                value={card.expirationDate}
+              <input
+                type="month"
+                style={inputStyle}
+                value={card.expirationDate?.slice(0, 7)}
                 onChange={(e) => {
                   const updated = [...cards];
                   updated[index].expirationDate = e.target.value;
@@ -380,13 +400,14 @@ const Profile = () => {
               <div key={movie.id} style={favoriteCard}>
                 <Link href={`/movie/${movie.id}`}>
                   <img
-                    src={posterMap[movie.title] || "/images/default.jpg"}
+                    src={movie.posterUrl || "/images/default.jpg"}
                     alt={movie.title}
                     style={{
                       width: "160px",
                       height: "240px",
                       borderRadius: "12px",
                       cursor: "pointer",
+                      objectFit: "cover"
                     }}
                   />
                 </Link>
@@ -412,6 +433,28 @@ const Profile = () => {
               </div>
             );
           })}
+        </div>
+          <div style={{ marginTop: 50, padding: "20px", background: "#1a1a1a", borderRadius: "8px", borderLeft: "4px solid #FFCC00" }}>
+          
+          {loadingRecs && (
+            <p style={{ color: "#aaa", fontStyle: "italic", margin: 0 }}>
+              Gemini is generating recommendations based on your favorite movies...
+            </p>
+          )}
+
+          {!loadingRecs && recommendations.length === 0 && (
+            <p style={{ color: "#aaa", margin: 0 }}>
+              No recommendations available.
+            </p>
+          )}
+
+          {!loadingRecs && recommendations.length > 0 && (
+            <p style={{ color: "white", fontSize: "16px", margin: 0, lineHeight: "1.5" }}>
+              <strong style={{ color: "#FFCC00" }}>Gemini recommends:</strong>{" "}
+              {recommendations.join(", ")}.
+            </p>
+          )}
+          
         </div>
       </section>
     </div>

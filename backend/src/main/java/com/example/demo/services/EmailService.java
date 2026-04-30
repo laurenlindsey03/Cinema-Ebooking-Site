@@ -24,7 +24,7 @@ public class EmailService {
             User user,
             Movie movie,
             Showtime showtime,
-            List<Integer> seatIds,
+            List<String> seatLabels,
             int adultCount,
             int childCount,
             int seniorCount,
@@ -44,14 +44,12 @@ public class EmailService {
             "Movie: " + movie.getTitle() + "\n" +
             "Date & Time: " + formattedTime + "\n" +
             "Hall: " + showtime.getHallName() + "\n" +
-            "Seats: " + String.join(", ", seatIds.stream().map(String::valueOf).toArray(String[]::new)) + "\n\n" +
+            "Seats: " + String.join(", ", seatLabels) + "\n\n" +
             "--- PRICING ---\n" +
             "Adult (" + adultCount + ") @ $15 = $" + adultTotal + "\n" +
             "Child (" + childCount + ") @ $7 = $" + childTotal + "\n" +
             "Senior (" + seniorCount + ") @ $10 = $" + seniorTotal + "\n" +
             "TOTAL: $" + total + "\n\n" +
-            "Please arrive 15 minutes before your showtime.\n" +
-            "For cancellations, use your confirmation number.\n\n" +
             "Enjoy your movie!\n\n" +
             "Cinema E-Booking Team";
         

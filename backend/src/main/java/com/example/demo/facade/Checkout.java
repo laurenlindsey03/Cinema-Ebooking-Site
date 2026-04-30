@@ -5,6 +5,7 @@ import com.example.demo.model.Movie;
 import com.example.demo.model.Showtime;
 import com.example.demo.model.Ticket;
 import com.example.demo.model.User;
+import com.example.demo.model.Seat;
 
 import com.example.demo.services.PricingService;
 import com.example.demo.services.SeatService;
@@ -15,10 +16,12 @@ import com.example.demo.repository.UserRepository;
 import com.example.demo.repository.ShowtimeRepository;
 import com.example.demo.repository.TicketRepository;
 import com.example.demo.repository.MovieRepository;
+import com.example.demo.repository.SeatRepository;
 
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +38,10 @@ public class Checkout implements CheckoutFacade {
     private final MovieRepository movieRepository;
     private final BookingRepository bookingRepository;
     private final TicketRepository ticketRepository;
+    private final SeatRepository seatRepository;
 
     public Checkout(PricingService pricingService, SeatService seatService, EmailService emailService,
-                    UserRepository userRepository, ShowtimeRepository showtimeRepository, MovieRepository movieRepository, BookingRepository bookingRepository, TicketRepository ticketRepository) {
+                    UserRepository userRepository, ShowtimeRepository showtimeRepository, MovieRepository movieRepository, BookingRepository bookingRepository, TicketRepository ticketRepository, SeatRepository seatRepository) {
         this.pricingService = pricingService;
         this.seatService = seatService;
         this.emailService = emailService;
@@ -46,18 +50,22 @@ public class Checkout implements CheckoutFacade {
         this.movieRepository = movieRepository;
         this.bookingRepository = bookingRepository;
         this.ticketRepository = ticketRepository;
+        this.seatRepository = seatRepository;
     }
 
     @Override
     public Map<String, Object> processOrder(Map<String, Object> payload) {
         
-        int userId = (Integer) payload.getOrDefault("userId", 0);
+        int userId = ((Number) payload.getOrDefault("userId", 0)).intValue();
         long showtimeId = ((Number) payload.getOrDefault("showtimeId", 0L)).longValue();
+        int adultCount = ((Number) payload.getOrDefault("adultTickets", 0)).intValue();
+        int childCount = ((Number) payload.getOrDefault("childTickets", 0)).intValue();
+        int seniorCount = ((Number) payload.getOrDefault("seniorTickets", 0)).intValue();
+
         @SuppressWarnings("unchecked")
         List<Integer> seatIds = (List<Integer>) payload.get("seatIds");
-        int adultCount = (Integer) payload.getOrDefault("adultTickets", 0);
-        int childCount = (Integer) payload.getOrDefault("childTickets", 0);
-        int seniorCount = (Integer) payload.getOrDefault("seniorTickets", 0);
+
+        List<String> seatLabels = new ArrayList<>();
 
         // Fetch entities
         User user = userRepository.findById(userId)
@@ -86,10 +94,24 @@ public class Checkout implements CheckoutFacade {
 
         Booking savedBooking = bookingRepository.save(booking);
 
-        for (Integer seatId : seatIds) {
+        @SuppressWarnings("unchecked")
+        List<String> frontendSeatNames = (List<String>) payload.get("seatNames");
+
+        for (int i = 0; i < seatIds.size(); i++) {
+            Integer seatId = seatIds.get(i);
+            Seat seat = seatRepository.findById(seatId)
+                    .orElseThrow(() -> new RuntimeException("Seat not found"));
+            
+            String actualSeatLabel = (frontendSeatNames != null && i < frontendSeatNames.size()) 
+                ? frontendSeatNames.get(i) 
+                : seat.getSeatNumber();
+                
+            seatLabels.add(actualSeatLabel);
+
             Ticket ticket = new Ticket();
             ticket.setBooking(savedBooking);
-            ticket.setSeatNumber(String.valueOf(seatId));
+            
+            ticket.setSeatNumber(actualSeatLabel); 
             ticket.setTicketType("STANDARD");
             ticket.setPrice(total / seatIds.size());
             ticket.setStatus("ACTIVE");
@@ -99,7 +121,7 @@ public class Checkout implements CheckoutFacade {
 
         // Send confirmation email
         emailService.sendBookingConfirmation(confirmationNumber, user, movie, showtime, 
-            seatIds, adultCount, childCount, seniorCount, total);
+            seatLabels, adultCount, childCount, seniorCount, total);
 
         // Build response
         Map<String, Object> response = new HashMap<>();
