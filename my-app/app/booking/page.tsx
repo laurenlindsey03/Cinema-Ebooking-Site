@@ -9,6 +9,7 @@ export default function Booking() {
 
   const movie = params.get("movie");
   const time = params.get("time");
+  const showtimeId = params.get("showtimeId");
   const formattedShowtime =
   time &&
   `${new Date(time).toLocaleDateString()} — ${new Date(time).toLocaleTimeString([], {
@@ -32,6 +33,7 @@ export default function Booking() {
     localStorage.setItem("bookingData", JSON.stringify({
       movie,
       time,
+      showtimeId,
       adult,
       child,
       senior

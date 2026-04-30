@@ -17,6 +17,7 @@ import java.util.List;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
+import java.util.stream.Collectors; 
 
 @Service
 public class ProfileService {
@@ -62,18 +63,18 @@ public class ProfileService {
     }
 
     public List<CardResponse> getCards(Integer userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        
-        List<Card> cards = cardRepository.findByUser(user);
 
-        return cards.stream().map(card -> {
+        List<Card> userCards = cardRepository.findByUser_UserId(userId);
+
+        return userCards.stream().map(card -> {
             CardResponse response = new CardResponse();
             response.setCardId(card.getCardId());
-            response.setCardNumber("**** **** **** " + card.getLast4());
             response.setExpirationDate(card.getExpirationDate());
             response.setBillingAddress(card.getBillingAddress());
+            response.setLast4(card.getLast4()); 
+            
             return response;
-        }).toList();
+        }).collect(Collectors.toList());
     }
 
     public Card addCard(Integer userId, Card card) {

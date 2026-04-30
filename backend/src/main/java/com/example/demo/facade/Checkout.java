@@ -51,13 +51,14 @@ public class Checkout implements CheckoutFacade {
     @Override
     public Map<String, Object> processOrder(Map<String, Object> payload) {
         
-        int userId = (Integer) payload.getOrDefault("userId", 0);
+        int userId = ((Number) payload.getOrDefault("userId", 0)).intValue();
         long showtimeId = ((Number) payload.getOrDefault("showtimeId", 0L)).longValue();
+        int adultCount = ((Number) payload.getOrDefault("adultTickets", 0)).intValue();
+        int childCount = ((Number) payload.getOrDefault("childTickets", 0)).intValue();
+        int seniorCount = ((Number) payload.getOrDefault("seniorTickets", 0)).intValue();
+
         @SuppressWarnings("unchecked")
         List<Integer> seatIds = (List<Integer>) payload.get("seatIds");
-        int adultCount = (Integer) payload.getOrDefault("adultTickets", 0);
-        int childCount = (Integer) payload.getOrDefault("childTickets", 0);
-        int seniorCount = (Integer) payload.getOrDefault("seniorTickets", 0);
 
         // Fetch entities
         User user = userRepository.findById(userId)
@@ -74,7 +75,7 @@ public class Checkout implements CheckoutFacade {
         String confirmationNumber = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
         // Mark seats as unavailable
-        seatService.markSeatsUnavailable(seatIds, showtime);
+        // seatService.markSeatsUnavailable(seatIds, showtime);
 
         Booking booking = new Booking();
         booking.setUser(user);

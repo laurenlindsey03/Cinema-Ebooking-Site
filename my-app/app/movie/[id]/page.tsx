@@ -88,9 +88,6 @@ export default function MovieDetails() {
           minute: "2-digit"
         });
 
-        console.log("movie object:", movie);
-        console.log("posterUrl:", movie.posterUrl);
-
         return (
           <div key={show.id} style={{ marginBottom: "10px" }}>
             <div style={{ fontWeight: 600 }}>
@@ -98,7 +95,7 @@ export default function MovieDetails() {
             </div>
 
             <Link
-              href={`/booking?movie=${encodeURIComponent(movie.title)}&time=${show.startTime}`}
+              href={`/booking?movie=${encodeURIComponent(movie.title)}&time=${show.startTime}&showtimeId=${show.id}`}
             >
               <button
                 style={{
