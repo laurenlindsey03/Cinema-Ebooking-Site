@@ -75,7 +75,7 @@ public class Checkout implements CheckoutFacade {
         String confirmationNumber = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
         // Mark seats as unavailable
-        // seatService.markSeatsUnavailable(seatIds, showtime);
+        seatService.markSeatsUnavailable(seatIds, showtime);
 
         Booking booking = new Booking();
         booking.setUser(user);

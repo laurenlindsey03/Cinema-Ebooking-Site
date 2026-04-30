@@ -38,7 +38,6 @@ export default function Checkout() {
     setSeats(selectedSeats);
     setUserId(id);
 
-    // FIXED: Now pointing to the correct PaymentController endpoint
     fetch(`http://localhost:8080/api/payments/saved-cards?userId=${id}`)
       .then(res => res.json())
       .then(data => {
@@ -80,7 +79,7 @@ export default function Checkout() {
     const payload = {
       userId: Number(userId),
       showtimeId: Number(booking.showtimeId), 
-      seatIds: seats.map(seat => parseInt(seat.replace(/\D/g, ""))),
+      seatIds: seats.map(seat => Number(seat)),
       adultTickets: booking.adult,
       childTickets: booking.child,
       seniorTickets: booking.senior,
