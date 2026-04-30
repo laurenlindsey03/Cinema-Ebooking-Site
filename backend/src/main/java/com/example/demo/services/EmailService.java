@@ -28,6 +28,9 @@ public class EmailService {
             int adultCount,
             int childCount,
             int seniorCount,
+            double subtotal,
+            double fee,
+            double tax,
             double total) {
         
         double adultTotal = adultCount * 15;
@@ -49,7 +52,10 @@ public class EmailService {
             "Adult (" + adultCount + ") @ $15 = $" + adultTotal + "\n" +
             "Child (" + childCount + ") @ $7 = $" + childTotal + "\n" +
             "Senior (" + seniorCount + ") @ $10 = $" + seniorTotal + "\n" +
-            "TOTAL: $" + total + "\n\n" +
+            "Subtotal: $" + String.format("%.2f", subtotal) + "\n" +
+            "Online Booking Fee: $" + String.format("%.2f", fee) + "\n" +
+            "Tax (7%): $" + String.format("%.2f", tax) + "\n" +
+            "TOTAL: $" + String.format("%.2f", total) + "\n\n" +
             "Enjoy your movie!\n\n" +
             "Cinema E-Booking Team";
         

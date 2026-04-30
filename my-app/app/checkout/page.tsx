@@ -55,6 +55,10 @@ export default function Checkout() {
   if (!booking) return <div style={{ color: "white", textAlign: "center", marginTop: "50px" }}>Loading...</div>;
 
   const subtotal = booking.adult * 15 + booking.child * 7 + booking.senior * 10;
+  const fee = 2.00;
+  const totalWithFee = subtotal + fee;
+  const tax = totalWithFee * 0.07;
+  const finalTotal = totalWithFee + tax;
 
   async function handlePlaceOrder() {
     setIsLoading(true);
@@ -150,7 +154,10 @@ export default function Checkout() {
         <div style={sectionStyle}>
           <p><strong>Movie:</strong> {booking.movie}</p>
           <p><strong>Seats:</strong> {seatLabels.length > 0 ? seatLabels.join(", ") : seats.join(", ")}</p>
-          <p><strong>Total:</strong> ${subtotal}</p>
+          <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)}</p>
+          <p><strong>Online Booking Fee:</strong> ${fee.toFixed(2)}</p>
+          <p><strong>Tax (7%):</strong> ${tax.toFixed(2)}</p>
+          <p><strong>Total:</strong> ${finalTotal.toFixed(2)}</p>
         </div>
 
         <div style={sectionStyle}>

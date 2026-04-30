@@ -76,7 +76,13 @@ public class Checkout implements CheckoutFacade {
             .orElseThrow(() -> new RuntimeException("Movie not found"));
 
         // Calculate total
-        double total = pricingService.calculateTotal(adultCount, childCount, seniorCount);
+        double subtotal = pricingService.calculateTotal(adultCount, childCount, seniorCount);
+        
+        double totalWithFee = pricingService.addOnlineBookingFee(subtotal);
+        double fee = 2.00;
+        
+        double finalTotal = pricingService.totalPlusTax(totalWithFee);
+        double tax = finalTotal - totalWithFee; 
 
         // Generate confirmation number
         String confirmationNumber = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
@@ -88,7 +94,7 @@ public class Checkout implements CheckoutFacade {
         booking.setUser(user);
         booking.setShowtime(showtime);
         booking.setBookingDate(LocalDateTime.now());
-        booking.setTotalPrice(total);
+        booking.setTotalPrice(finalTotal);
         booking.setStatus("CONFIRMED");
         booking.setConfirmationNumber(confirmationNumber);
 
@@ -113,7 +119,7 @@ public class Checkout implements CheckoutFacade {
             
             ticket.setSeatNumber(actualSeatLabel); 
             ticket.setTicketType("STANDARD");
-            ticket.setPrice(total / seatIds.size());
+            ticket.setPrice(finalTotal / seatIds.size());
             ticket.setStatus("ACTIVE");
 
             ticketRepository.save(ticket);
@@ -121,13 +127,13 @@ public class Checkout implements CheckoutFacade {
 
         // Send confirmation email
         emailService.sendBookingConfirmation(confirmationNumber, user, movie, showtime, 
-            seatLabels, adultCount, childCount, seniorCount, total);
+            seatLabels, adultCount, childCount, seniorCount, subtotal, fee, tax, finalTotal);
 
         // Build response
         Map<String, Object> response = new HashMap<>();
         response.put("bookingId", savedBooking.getBookingId());
         response.put("confirmationNumber", confirmationNumber);
-        response.put("total", total);
+        response.put("total", finalTotal);
         response.put("movieTitle", movie.getTitle());
         response.put("showtime", showtime.getStartTime());
         response.put("seats", seatIds);
