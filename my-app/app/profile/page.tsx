@@ -167,6 +167,11 @@ const Profile = () => {
           return; 
         }
 
+        let formattedDate = card.expirationDate;
+        if (formattedDate && formattedDate.length === 7) {
+          formattedDate += "-01"; 
+        }
+
         const expirationDate = new Date(card.expirationDate);
         if (isNaN(expirationDate.getTime())) {
           setIsError(true);
@@ -186,7 +191,7 @@ const Profile = () => {
           body: JSON.stringify({
             cardId: card.cardId,
             encryptedCardNumber: card.cardNumber,
-            expirationDate: card.expirationDate,
+            expirationDate: formattedDate,
             billingAddress: card.billingAddress
           })
         });
