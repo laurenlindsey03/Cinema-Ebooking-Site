@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class AddMovieRequest {
      
@@ -11,6 +12,7 @@ public class AddMovieRequest {
     private LocalDate releaseDate;
     private String posterUrl;
     private String trailerUrl;
+    private List<String> categories;
 
     public String getTitle() {
         return title;
@@ -66,5 +68,13 @@ public class AddMovieRequest {
 
     public void setTrailerUrl(String trailerUrl) {
         this.trailerUrl = trailerUrl;
+    }
+
+    public List<String> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
     }
 }
