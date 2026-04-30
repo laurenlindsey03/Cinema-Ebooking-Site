@@ -16,4 +16,15 @@ public class PricingService {
         
         return adultTotal + childTotal + seniorTotal;
     }
+
+    public double addOnlineBookingFee(double total){
+        return total + 2.0; // Flat $2 online booking fee
+    }
+
+    public double totalPlusTax(double totalplusFee){ 
+        double taxRate = 0.07; // 7% tax
+        return totalplusFee * (1 + taxRate);
+    }
+    
+    
 }
