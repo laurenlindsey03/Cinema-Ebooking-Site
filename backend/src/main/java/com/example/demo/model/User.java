@@ -14,6 +14,12 @@ public class User {
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Address address;
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private UserPreference userPreference;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<FavoriteMovie> favoriteMovies;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Card> cards;
 
@@ -154,6 +160,22 @@ public class User {
 
     public void setPromotionsEnabled(Boolean promotionsEnabled) {
         this.promotionsEnabled = promotionsEnabled;
+    }
+
+    public UserPreference getUserPreference() {
+        return userPreference;
+    }
+
+    public void setUserPreference(UserPreference userPreference) {
+        this.userPreference = userPreference;
+    }
+
+    public List<FavoriteMovie> getFavoriteMovies() {
+        return favoriteMovies;
+    }
+
+    public void setFavoriteMovies(List<FavoriteMovie> favoriteMovies) {
+        this.favoriteMovies = favoriteMovies;
     }
     
 }

@@ -57,6 +57,9 @@ export default function Navbar() {
             <Link href="/profile" style={{ color: "white" }}>
               Profile
             </Link>
+            <Link href="/orders" style={{ color: "white" }}>
+              Order History
+            </Link>
 
             {isAdmin && (
               <Link href="/admin" style={{ color: "#FFCC00" }}>

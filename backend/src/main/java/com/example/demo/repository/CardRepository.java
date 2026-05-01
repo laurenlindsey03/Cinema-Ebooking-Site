@@ -9,4 +9,5 @@ import java.util.List;
 public interface CardRepository extends JpaRepository<Card, Integer> {
     List<Card> findByUser(User user);
     long countByUser(User user);
+    List<Card> findByUser_UserId(Integer userId);
 }

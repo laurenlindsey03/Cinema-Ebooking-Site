@@ -1,9 +1,10 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "seats")
+@Table(name = "cinema_seats")
 public class Seat {
     
     @Id
@@ -12,11 +13,11 @@ public class Seat {
 
     @ManyToOne
     @JoinColumn(name = "showtime_id", nullable = false)
+    @JsonIgnore
     private Showtime showtime;
 
-    @ManyToOne
-    @JoinColumn(name = "seat_id", nullable = false)
-    private Seat seat;
+    @Column(name = "seat_number", nullable = false)
+    private String seatNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -38,12 +39,12 @@ public class Seat {
         this.showtime = showtime;
     }
 
-    public Seat getSeat() {
-        return seat;
+    public String getSeatNumber() {
+        return seatNumber;
     }
 
-    public void setSeat(Seat seat) {
-        this.seat = seat;
+    public void setSeatNumber(String seatNumber) {
+        this.seatNumber = seatNumber;
     }
 
     public SeatStatus getStatus() {
@@ -53,5 +54,4 @@ public class Seat {
     public void setStatus(SeatStatus status) {
         this.status = status;
     }
-    
 }
