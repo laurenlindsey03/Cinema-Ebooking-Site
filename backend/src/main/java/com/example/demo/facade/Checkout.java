@@ -62,6 +62,8 @@ public class Checkout implements CheckoutFacade {
         int childCount = ((Number) payload.getOrDefault("childTickets", 0)).intValue();
         int seniorCount = ((Number) payload.getOrDefault("seniorTickets", 0)).intValue();
 
+        String paymentRef = (String) payload.getOrDefault("paymentReference", "Card on File");
+
         @SuppressWarnings("unchecked")
         List<Integer> seatIds = (List<Integer>) payload.get("seatIds");
 
@@ -97,6 +99,7 @@ public class Checkout implements CheckoutFacade {
         booking.setTotalPrice(finalTotal);
         booking.setStatus("CONFIRMED");
         booking.setConfirmationNumber(confirmationNumber);
+        booking.setPaymentReference(paymentRef);
 
         Booking savedBooking = bookingRepository.save(booking);
 
