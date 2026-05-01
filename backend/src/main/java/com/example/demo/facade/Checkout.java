@@ -77,14 +77,17 @@ public class Checkout implements CheckoutFacade {
         Movie movie = movieRepository.findById(showtime.getMovieId())
             .orElseThrow(() -> new RuntimeException("Movie not found"));
 
-        // Calculate total
+        // Calculate final total 
+        int appliedDiscount = ((Number) payload.getOrDefault("appliedDiscount", 0)).intValue();
         double subtotal = pricingService.calculateTotal(adultCount, childCount, seniorCount);
+        double discountAmount = subtotal * (appliedDiscount / 100.0);
+        subtotal = subtotal - discountAmount; 
         
         double totalWithFee = pricingService.addOnlineBookingFee(subtotal);
         double fee = 2.00;
         
         double finalTotal = pricingService.totalPlusTax(totalWithFee);
-        double tax = finalTotal - totalWithFee; 
+        double tax = finalTotal - totalWithFee;
 
         // Generate confirmation number
         String confirmationNumber = UUID.randomUUID().toString().substring(0, 8).toUpperCase();

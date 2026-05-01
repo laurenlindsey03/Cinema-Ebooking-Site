@@ -9,9 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
-
-
 import java.util.Map;
 
 @RestController
@@ -27,6 +26,11 @@ public class PromotionController {
         this.promotionRepository = promotionRepository;
         this.userRepository = userRepository;
         this.mailSender = mailSender;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Promotion>> getAllPromotions() {
+        return ResponseEntity.ok(promotionRepository.findAll());
     }
 
     @PostMapping
@@ -53,14 +57,40 @@ public class PromotionController {
 
         Promotion savedPromo = promotionRepository.save(promotion);
 
+        sendPromoEmailsToSubscribers(savedPromo);
+
+        return ResponseEntity.ok(savedPromo);
+    }
+
+    @PostMapping("/{id}/send")
+    public ResponseEntity<?> sendPromotionEmail(@PathVariable Integer id) {
+        Promotion promo = promotionRepository.findById(id).orElse(null);
+        if (promo == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Promotion not found."));
+        }
+
+        int sentCount = sendPromoEmailsToSubscribers(promo);
+        
+        if (sentCount == 0) {
+            return ResponseEntity.ok(Map.of("message", "No users are currently subscribed to promotions."));
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Emails successfully resent to " + sentCount + " subscribed customers!"));
+    }
+
+    private int sendPromoEmailsToSubscribers(Promotion promo) {
         List<User> subscribedUsers = userRepository.findByPromotionsEnabledTrue();
+        if (subscribedUsers.isEmpty()) {
+            return 0;
+        }
 
-        String subject = "Cinema E-Booking Promotion: " + savedPromo.getDiscount() + "% off!";
-        String body = "Use promo code " + savedPromo.getCode() + " to get " + 
-                      savedPromo.getDiscount() + "% off your next booking.\n" +
-                      "This offer is valid from " + savedPromo.getStart() + 
-                      " to " + savedPromo.getEnd() + "!\n";
+        String subject = "Cinema E-Booking Promotion: " + promo.getDiscount() + "% off!";
+        String body = "Use promo code " + promo.getCode() + " to get " + 
+                      promo.getDiscount() + "% off your next booking.\n" +
+                      "This offer is valid from " + promo.getStart() + 
+                      " to " + promo.getEnd() + "!\n";
 
+        int sentCount = 0;
         for (User user : subscribedUsers) {
             try {
                 SimpleMailMessage emailMessage = new SimpleMailMessage();
@@ -68,12 +98,11 @@ public class PromotionController {
                 emailMessage.setSubject(subject);
                 emailMessage.setText(body);
                 mailSender.send(emailMessage);
+                sentCount++;
             } catch (Exception e) {
-                System.out.println("Failed to send promo email.");
+                System.out.println("Failed to send promo email to " + user.getEmail());
             }
         }
-
-        return ResponseEntity.ok(savedPromo);
-
+        return sentCount;
     }
 }
