@@ -2,7 +2,7 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set; 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -35,25 +35,25 @@ public class Movie {
     @Column(name = "trailer_url")
     private String trailerUrl;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "movie_categories", joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "category")
-    private List<String> categories;
+    private Set<String> categories;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "movie_cast", joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "actor_name")
-    private List<String> cast;
+    private Set<String> cast;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "movie_directors", joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "director_name")
-    private List<String> directors;
+    private Set<String> directors;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "movie_producers", joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "producer_name")
-    private List<String> producers;
+    private Set<String> producers;
 
     public Movie() {}
 
@@ -121,35 +121,35 @@ public class Movie {
         this.trailerUrl = trailerUrl; 
     }
 
-    public List<String> getCategories() { 
+    public Set<String> getCategories() { 
         return categories; 
     }
 
-    public void setCategories(List<String> categories) { 
+    public void setCategories(Set<String> categories) { 
         this.categories = categories; 
     }
 
-    public List<String> getCast() { 
+    public Set<String> getCast() { 
         return cast; 
     }
 
-    public void setCast(List<String> cast) { 
+    public void setCast(Set<String> cast) { 
         this.cast = cast; 
     }
 
-    public List<String> getDirectors() { 
+    public Set<String> getDirectors() { 
         return directors; 
     }
 
-    public void setDirectors(List<String> directors) { 
+    public void setDirectors(Set<String> directors) { 
         this.directors = directors; 
     }
 
-    public List<String> getProducers() { 
+    public Set<String> getProducers() { 
         return producers; 
     }
     
-    public void setProducers(List<String> producers) { 
+    public void setProducers(Set<String> producers) { 
         this.producers = producers; 
     }
 }

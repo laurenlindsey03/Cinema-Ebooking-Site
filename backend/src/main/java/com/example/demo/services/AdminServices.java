@@ -16,6 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminServices {
@@ -48,10 +50,10 @@ public class AdminServices {
         movie.setPosterUrl(movie.getPosterUrl().trim());
         movie.setTrailerUrl(movie.getTrailerUrl().trim());
 
-        movie.setCategories(trimList(movie.getCategories()));
-        movie.setCast(trimList(movie.getCast()));
-        movie.setDirectors(trimList(movie.getDirectors()));
-        movie.setProducers(trimList(movie.getProducers()));
+        movie.setCategories(trimSet(movie.getCategories()));
+        movie.setCast(trimSet(movie.getCast()));
+        movie.setDirectors(trimSet(movie.getDirectors()));
+        movie.setProducers(trimSet(movie.getProducers()));
 
         return movieRepository.save(movie);
     }
@@ -116,10 +118,10 @@ public class AdminServices {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "releaseDate is required.");
         }
 
-        requireList(movie.getCategories(), "categories");
-        requireList(movie.getCast(), "cast");
-        requireList(movie.getDirectors(), "directors");
-        requireList(movie.getProducers(), "producers");
+        requireSet(movie.getCategories(), "categories");
+        requireSet(movie.getCast(), "cast");
+        requireSet(movie.getDirectors(), "directors");
+        requireSet(movie.getProducers(), "producers");
     }
 
     private void requireText(String value, String fieldName) {
@@ -128,7 +130,7 @@ public class AdminServices {
         }
     }
 
-    private void requireList(List<String> values, String fieldName) { //checks that list is not null
+    private void requireSet(Set<String> values, String fieldName) { 
         if (values == null || values.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fieldName + " is required.");
         }
@@ -139,8 +141,9 @@ public class AdminServices {
         }
     }
 
-    private List<String> trimList(List<String> values) { //trim whitespace from items in list
-        return values.stream().map(String::trim).toList();
+    private Set<String> trimSet(Set<String> values) { 
+        if (values == null) return null;
+        return values.stream().map(String::trim).collect(Collectors.toSet());
     }
 
     private void validateShowtimeWindow(List<LocalDateTime> startTimes, List<LocalDateTime> endTimes) {
@@ -166,6 +169,4 @@ public class AdminServices {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "endTimes cannot contain null values.");
         }
     }
-
-    
 }

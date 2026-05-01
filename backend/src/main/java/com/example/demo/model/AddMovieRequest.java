@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 public class AddMovieRequest {
      
@@ -11,6 +12,10 @@ public class AddMovieRequest {
     private LocalDate releaseDate;
     private String posterUrl;
     private String trailerUrl;
+    private Set<String> categories;
+    private Set<String> cast;
+    private Set<String> directors;
+    private Set<String> producers;
 
     public String getTitle() {
         return title;
@@ -67,4 +72,14 @@ public class AddMovieRequest {
     public void setTrailerUrl(String trailerUrl) {
         this.trailerUrl = trailerUrl;
     }
+
+    public Set<String> getCategories() { return categories; }
+    public void setCategories(Set<String> categories) { this.categories = categories; }
+    public Set<String> getCast() { return cast; }
+    public void setCast(Set<String> cast) { this.cast = cast; }
+    public Set<String> getDirectors() { return directors; }
+    public void setDirectors(Set<String> directors) { this.directors = directors; }
+    public Set<String> getProducers() { return producers; }
+    public void setProducers(Set<String> producers) { this.producers = producers; }
+
 }
