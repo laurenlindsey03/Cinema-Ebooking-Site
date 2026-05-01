@@ -132,6 +132,22 @@ const Profile = () => {
       }
     }
 
+    const userRes = await fetch(`http://localhost:8080/profile/update/${userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber
+      })
+    });
+
+    if (!userRes.ok) {
+      setIsError(true);
+      setMessage("Failed to save personal information.");
+      return; 
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

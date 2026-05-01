@@ -30,6 +30,25 @@ public class ProfileService {
 
     private static final String SECRET = "MySuperSecretKey";
 
+    public User updateUserProfile(Integer userId, User updatedInfo) {
+        User existingUser = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        existingUser.setFirstName(updatedInfo.getFirstName());
+        existingUser.setLastName(updatedInfo.getLastName());
+        existingUser.setPhoneNumber(updatedInfo.getPhoneNumber());
+
+        User savedUser = userRepository.save(existingUser);
+
+        sendProfileUpdateEmail(
+            existingUser, 
+            "Cinema E-Booking Profile Update", 
+            "Your profile information has been successfully updated."
+        );
+
+        return savedUser;
+    }
+
     public ProfileService(UserRepository userRepository, AddressRepository addressRepository, CardRepository cardRepository, UserPreferenceRepository userPreferenceRepository, JavaMailSender mailSender) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;

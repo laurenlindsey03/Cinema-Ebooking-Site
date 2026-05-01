@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Address;
 import com.example.demo.model.Card;
+import com.example.demo.model.User;
 import com.example.demo.model.UserPreference;
 import com.example.demo.services.ProfileService;
 import com.example.demo.model.CardResponse;
@@ -49,6 +50,11 @@ public class ProfileController {
     @GetMapping("/preferences/{userId}")
     public UserPreference getPreferences(@PathVariable("userId") Integer userId) {
         return profileService.getPreferences(userId);
+    }
+
+    @PutMapping("/update/{userId}")
+    public User updateUserProfile(@PathVariable("userId") Integer userId, @RequestBody User user) {
+        return profileService.updateUserProfile(userId, user);
     }
 
 }
